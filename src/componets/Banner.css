@@ -1,0 +1,46 @@
+
+
+
+.bannerpage {
+
+    position: relative;
+  }
+  
+  .bannerpage::after {
+    content: "";
+    background-image: url('./images/sportsback.jpg');
+ opacity: 0.5;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    position: absolute;
+    z-index: -1; 
+    background-size: cover;
+    background-position:bottom;
+    background-repeat: no-repeat; 
+    margin-left: 0; 
+  }
+  .text {
+    height: 500px;
+  color:black;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  
+  }
+  .text h1{
+    margin-bottom: 1em;
+  }
+  .bannerbutton{
+   padding:10px 5px;
+   border-radius: 15px;
+   border: none;
+   color:white;
+   font-weight: bolder;
+margin: 1em;
+background-color:#0D4A42 ;
+margin-top: 2em;
+  }

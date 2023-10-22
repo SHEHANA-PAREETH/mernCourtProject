@@ -1,0 +1,27 @@
+
+    /*backgroundImage:`url(${image})`,
+     
+}*/
+
+.registerpage {
+    
+    display: block;
+    position: relative;
+  }
+  
+  .registerpage::after {
+    content: "";
+    background-image: url('./images/pic.png');
+    width:20vw;
+   
+    opacity: 0.2;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    position: absolute;
+    z-index: -1; 
+    background-size: cover;
+    background-position:top;
+    background-repeat: no-repeat;  
+  }

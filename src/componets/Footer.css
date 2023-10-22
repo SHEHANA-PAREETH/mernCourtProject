@@ -1,0 +1,12 @@
+.section6 ul{
+list-style: none;
+
+}
+.section6 ul li{
+    color:#64748B;
+    font-weight: 700;
+    line-height: 2em;
+    font-size: 1.3em;
+    cursor: pointer;
+    text-align: center;
+}

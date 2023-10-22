@@ -1,0 +1,23 @@
+.listitemsmodal{
+list-style-type: none;
+border-bottom: 1px solid black;
+
+}
+ul{
+    overflow-y: scroll;
+height: 200px;
+    background-color: aquamarine;
+    border: 1px solid rgba(0, 0, 0, 0.737);
+    box-shadow: 5px 5px 5px grey;
+    
+}
+.listitemsmodal:active{
+    background-color: rgb(55, 11, 230);
+   
+}
+.selectedTimings{
+    color:white;
+    background-color: black;
+   margin-right: 1rem;
+   margin-bottom: 1rem;
+}
