@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Swal from 'sweetalert2'
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom';
-import { setUser } from '../toolkit/userSlice';
+import { setUser , setOpenLoader } from '../toolkit/userSlice';
 import { useDispatch } from 'react-redux';
 
 
@@ -31,6 +31,7 @@ const handleInputChange=(e)=>{
  const handleSubmit=(e)=>{
   e.preventDefault()
   console.log(loginData);
+  dispatch(setOpenLoader(true))
   axios.post("http://localhost:4000/auth/login",loginData).then((res)=>{
     console.log(res.data.msg);
     if(res.data.msg==="user login success"){
@@ -58,7 +59,9 @@ setTimeout(()=>{
   setInvalid('')
 },3000)
     }
+   
   })
+  dispatch(setOpenLoader(false))
  }
   return (
     <Form onSubmit={handleSubmit}>

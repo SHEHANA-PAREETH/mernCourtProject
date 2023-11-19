@@ -1,0 +1,26 @@
+
+*{
+    box-sizing: border-box;
+}
+.courtbox{
+  height:300px;
+    width:50%;
+    margin: 2% auto;
+display:flex;
+align-items: center;
+justify-content: center;
+border:1px solid rgb(240, 233, 233);
+cursor:pointer;
+padding: 2%;
+border-radius: 1%;
+background-color: rgb(180, 237, 237);
+}
+.courtimage{
+    width: 40%;   
+    height: 100%;
+    border-radius: 2%;
+}
+.courttext{
+    width:60%;
+    letter-spacing: .5;
+}

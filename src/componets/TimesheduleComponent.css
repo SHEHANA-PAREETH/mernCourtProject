@@ -1,0 +1,14 @@
+
+.booked{
+    border:1px solid grey;
+    border-radius: 5px;
+    padding: 5px 10px;
+    background-color: rgb(21, 222, 21);
+    
+}
+.notbooked{
+    background-color:aqua;
+    border:1px solid grey;
+    border-radius: 5px;
+    padding: 5px 10px;
+}

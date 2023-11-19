@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
@@ -9,13 +9,26 @@ import { faCartShopping, faUser,faPen} from '@fortawesome/free-solid-svg-icons'
 import { useSelector } from 'react-redux';
 import { faTwitterSquare, faFacebook,faDribbble, faLinkedin, faInstagram,faTwitter} from "@fortawesome/free-brands-svg-icons";
 import Dropdown from 'react-bootstrap/Dropdown';
+import { useNavigate } from 'react-router-dom';
+import AxiosInstance from '../config/axiosinstance';
 
 
 
 function Navcomponent() {
+const [wallet,setWallet]=useState()
 const{user}=useSelector((state)=>state.user)
 console.log(user);
-
+const getWallet= async()=>{
+const result= await  AxiosInstance.get('payment/getwalletBalance')
+console.log(result);
+console.log(result.data.amount);
+setWallet(result.data.amount)
+}
+const navigate=useNavigate()
+const handlelogout=()=>{
+  localStorage.clear()
+navigate('/')
+}
   return (
 
       
@@ -36,15 +49,18 @@ console.log(user);
           <Nav className="me-auto">
           <Nav.Link href="/home" className='fw-bold text-light me-3'>Home</Nav.Link>
             
-            
+          {user.role===1&&<Nav.Link href="/userallcourts" className='me-3 text-light'>Courts</Nav.Link>}
+          {user.role===1&&<Nav.Link href="/userBookings" className='me-3 text-light'>My Bookings</Nav.Link>}
+          
             {user.role===2&&<Nav.Link href="/mycourts" className='me-3 text-light'>My Courts</Nav.Link>}
             {user.role===2&&<Nav.Link href="/registercourt" className='me-3 text-light'>Court Registration</Nav.Link>}
             <Nav.Link href="#features" className='text-light'>Pricing</Nav.Link>
            
             <Nav.Link href="#features" className='text-light '>Support</Nav.Link>
-            <Nav.Link href="/" className=' text-light'>Log in</Nav.Link>
+          <Nav.Link class="my-3" className='text-light' onClick={handlelogout}>Logout</Nav.Link>
+          <input type="text" className='border rounded-3 ms-3 px-2' />
           </Nav>
-          <NavDropdown title={`${user.firstName} ${user.lastName}`} id="basic-nav-dropdown" className='text-light'> 
+          <NavDropdown onClick={getWallet} title={`${user.firstName} ${user.lastName}`} id="basic-nav-dropdown" className='text-light'> 
          
  <div className='w-100'>
  <Dropdown.Item href="/uploadprofilepic"><img  src=""  alt="profile image" style={{width:'40px'}}/></Dropdown.Item>
@@ -53,7 +69,8 @@ console.log(user);
  
     <Dropdown.Item href="#/action-1">Email Id:</Dropdown.Item>
     <Dropdown.Item href="#/action-1">Mobile Number:</Dropdown.Item>
- 
+    <h5  className="mx-2">Wallet:{wallet}</h5>
+  
  
 
   <div class="d-flex">
@@ -63,7 +80,7 @@ console.log(user);
   <Dropdown.Item href="#"><FontAwesomeIcon icon={faLinkedin} style={{color: "#0D4A42"}} className=''/></Dropdown.Item>
   <Dropdown.Item href="#"><FontAwesomeIcon icon={faFacebook} style={{color: "#0D4A42"}} className=''/></Dropdown.Item>
   </div>
-  <p><button class="my-3">Contact</button></p>
+  <p></p>
 
  </div>
   

@@ -19,12 +19,14 @@ function CourtModal({showmodal,setShowmodal,singlcourt}) {
           right: 'auto',
           bottom: 'auto',  
           marginRight: '-50%',
-          width:'50%',
+          width:'40%',
           transform: 'translate(-50%, -50%)',
         },
       };
       const navigate=useNavigate()
 let subtitle;
+const[minendDate,setMinendDate]=useState()
+const[minimumDate,setMindate]=useState()
   const [modalIsOpen, setIsOpen] = React.useState(showmodal);
 const [showDropdown,setShowDropdown]=useState(false)
 const [selectedTimings,setSelectedTimings]=useState([])
@@ -91,21 +93,42 @@ const handleSubmit=(e)=>{
       }).then(()=>{
         setIsOpen(false)
         setShowmodal(false)
+        
       })
     }
     else{
       Swal.fire({  
          
         text: 'something went wrong ',
-      
       })
-    
-  
 }})}
+
 useEffect(()=>{
-  AxiosInstance.get('/vendors/getlatestupdateddate')
+  AxiosInstance.get('/vendor/getlatestupdateddate',{params:{courtId:id}}).then((res)=>{
+    if(res?.data?.msg==='success'){
+      let d=new Date(res?.data?.minDate)
+      console.log(d);
+  d.setDate(d.getDate()+1)
+   setMindate(d.toISOString().split('T')[0]);
+  console.log(minimumDate);
+    }
+    if(res?.data?.msg==='failed'){//courtshedules empty
+      const date = new Date();
+     setMindate(date.toISOString().split('T')[0]);
+    }
+
+
 })
-  return (
+},[courtTiming])
+ 
+const findMinendDate=()=>{
+  console.log(courtTiming.startingDate);
+let end=new Date(courtTiming.startingDate)
+end.setDate(end.getDate()+1)
+setMinendDate(end.toISOString().split('T')[0])
+console.log(minendDate);
+}
+return (
     
       <Modal
         isOpen={modalIsOpen}
@@ -119,11 +142,11 @@ useEffect(()=>{
           <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-3" >
         <Form.Label className=''>Start date</Form.Label>
-        <Form.Control type="date"   onChange={(e)=>setCourtTiming({...courtTiming,startingDate:new Date(e.target.value)})}/>
+        <Form.Control type="date" min={minimumDate} onBlur={findMinendDate} onChange={(e)=>setCourtTiming({...courtTiming,startingDate:new Date(e.target.value)})}/>
       </Form.Group>
       <Form.Group className="mb-3" >
         <Form.Label className=''>End date</Form.Label>
-        <Form.Control type="date"  onChange={(e)=>setCourtTiming({...courtTiming,endingDate:new Date(e.target.value)})}/>
+        <Form.Control type="date" min={minendDate} onChange={(e)=>setCourtTiming({...courtTiming,endingDate:new Date(e.target.value)})}/>
       </Form.Group>
       <Form.Group className="mb-3" >
         <Form.Label className=''>Cost</Form.Label>
