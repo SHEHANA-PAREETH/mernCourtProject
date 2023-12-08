@@ -5,10 +5,12 @@ import Navcomponent from '../componets/Navcomponent'
 import {useNavigate } from 'react-router-dom'
 
 import { ToastError } from '../plugins/Toast'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import PaginationComponent from '../componets/PaginationComponent'
+import { setOpenLoader } from '../toolkit/userSlice'
 
 function UserAllCourts() {
+  const dispatch=useDispatch()
   const navigate=useNavigate()
   const[courtData,setCourtData]=useState([])
   const [totalDocuments,setTotalDocuments]=useState()
@@ -21,6 +23,7 @@ function UserAllCourts() {
   const getAllcourtData=()=>{
     try{
       console.log(selectedPage);
+      dispatch(setOpenLoader(true))
       AxiosInstance.get('/getallcourts',{params:{searchText:searchText ?? null,selectedPage:selectedPage}}).then((res)=>{
   
         setCourtData(res?.data?.data);
@@ -34,6 +37,7 @@ function UserAllCourts() {
     navigate('/')
   }
     })
+    dispatch(setOpenLoader(false))
     }
     catch(error){
       console.log(error);
