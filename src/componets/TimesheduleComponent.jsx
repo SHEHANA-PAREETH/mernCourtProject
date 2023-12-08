@@ -1,11 +1,10 @@
 import React, { useState } from 'react'
 import './TimesheduleComponent.css'
-
-import ReactDOM from 'react-dom';
 import Modal from 'react-modal';
 import { Button } from 'react-bootstrap';
 import AxiosInstance from '../config/axiosinstance';
-import { BASEURL } from '../Constants/baseURL';
+
+import { toastSuccess } from '../plugins/Toast';
 
 function TimesheduleComponent({data}) {
     let subtitle;
@@ -52,7 +51,7 @@ const paymentFromWallet= async ()=>{
 const result= await AxiosInstance.get('/payment/walletpayment',{params:{id:data._id}})
 console.log(result);
 if(result.data.message==="success"){
-  alert('success')
+ toastSuccess("success")
   setbook(true)
   setIsOpen(false);
 }
@@ -79,7 +78,7 @@ if(result.data.message==="insufficient balance"){
         }
 
         // creating a new order
-        const result = await AxiosInstance.post(`${BASEURL}/payment/orders`,{id:data._id});//pass id as body not params
+        const result = await AxiosInstance.post(`/payment/orders`,{id:data._id});//pass id as body not params
 
         if (!result) {
             alert("Server error. Are you online?");
@@ -108,9 +107,9 @@ if(result.data.message==="insufficient balance"){
                     razorpaySignature: response.razorpay_signature,
                 };
 
-                const result = await AxiosInstance.post(`${BASEURL}/payment/success`, data);
+                const result = await AxiosInstance.post(`/payment/success`, data);
                setbook(true)
-                alert(result.data.msg);
+                toastSuccess(result.data.msg);
             },
             prefill: {
                 name: "Shehana pareeth",
@@ -132,7 +131,7 @@ if(result.data.message==="insufficient balance"){
 }
   return (
     <>
-    <div  onClick={openModal} className={`${data.bookedBy||book?'booked':'notbooked'}`}>{data.slot.name}</div>
+    <div  onClick={openModal} className={` ${data.bookedBy||book?'booked':'notbooked'}`}>{data.slot.name}</div>
   <div>
       
      {data.bookedBy||book?<Modal

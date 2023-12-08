@@ -20,7 +20,7 @@ function Logincard() {
         </Card.Text>
 <span className='d-flex justify-content-center'>Don't have an account? </span>
         <button className=' w-100 btn fw-bolder'style={{color:'#0D4A42'}} onClick={()=>setLogin(!login)}> Register</button>
-        <Nav.Link href='' style={{textAlign:'center'}}>Forgot password?</Nav.Link>
+        <Nav.Link href='/forgotpassword' style={{textAlign:'center'}}>Forgot password?</Nav.Link>
       </Card.Body>
     </Card>
   )

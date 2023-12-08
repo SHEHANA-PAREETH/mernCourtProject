@@ -3,7 +3,7 @@ list-style-type: none;
 border-bottom: 1px solid black;
 
 }
-ul{
+.list-containermodal {
     overflow-y: scroll;
 height: 200px;
     background-color: aquamarine;

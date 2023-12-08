@@ -4,6 +4,7 @@ import UserBokkingCard from '../componets/UserBokkingCard'
 import AxiosInstance from '../config/axiosinstance'
 import {Button,Container,Row,Col} from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
+import { ToastError } from '../plugins/Toast'
 function UserBooking() {
   const [bookingData,setBookingData]=useState([])
 const [upcoming,setUpcoming]=useState(false)
@@ -14,8 +15,10 @@ const navigate=useNavigate()
 
     AxiosInstance.get('/getSingleUserBookings').then((res)=>{
       console.log(res.data.data);
-      
+      if(res?.data?.data?.length)
       setBookingData(res.data.data)
+    else
+    ToastError('no upcoming bookings')
     })
     }
     const  getPreviousBookings=()=>{
@@ -23,12 +26,23 @@ const navigate=useNavigate()
     
       AxiosInstance.get('/getPreviousUserBookings').then((res)=>{
         console.log(res);
+        if(res?.data?.data?.length)
         setBookingData(res.data.data)
+      else
+      ToastError('no previous bookings')
       })
       }
       const  getCancelledBookings=()=>{
+        AxiosInstance.get('/getCancelledUserBookings').then((res)=>{
+          console.log(res.data.data);
+          if(res?.data?.data?.length){
+            navigate('/getCancelledUserBookings')
+          }
         
-      navigate('/getCancelledUserBookings')
+      else
+      ToastError('no cancelled bookings')
+        })
+    
        
         }
   return (

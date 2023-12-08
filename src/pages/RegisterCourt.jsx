@@ -5,6 +5,8 @@ import Swal from 'sweetalert2'
 
 import {useNavigate} from 'react-router-dom'
 import AxiosInstance from '../config/axiosinstance'
+import Navcomponent from '../componets/Navcomponent'
+import { ToastError } from '../plugins/Toast'
 function RegisterCourt() {
   const [selectedImages, setSelectedImages] = useState([]);
   const[files,setFile]=useState([])
@@ -55,34 +57,47 @@ const handleSubmit= async (e)=>{
   for ( var key in courtData ) {
     formData.append(key, courtData[key]);
 }
-    
-    const result = await AxiosInstance.post('/vendor/newcourtregistration', formData,
-     { headers: {'Content-Type': 'multipart/form-data'}})
-    console.log(result.data)
-    if(result.data.courtregister){
-   
-      Swal.fire({  
-         
-        text: 'Register successfully.',
-        icon: 'success'
-      }).then(
-        navigate('/mycourts')
-      )
+    function hasEmptyValue(obj){
+      return Object.values(obj).some(value=> value === "")
     }
-    else{
-      Swal.fire({  
-         
-        text: 'something went wrong ',
+
+if(files.length === 0 || hasEmptyValue(courtData)){
+  ToastError('fields cannot be empty')
+}
+else{
+  const result = await AxiosInstance.post('/vendor/newcourtregistration', formData,
+  { headers: {'Content-Type': 'multipart/form-data'}})
+ console.log(result.data)
+ if(result?.data?.courtregister){
+
+   Swal.fire({  
       
-      })
-    }
+     text: 'Register successfully.',
+     icon: 'success'
+   }).then(
+    // window.location.reload()
+    
+    navigate('/mycourts')
+   )
+ }
+ else{
+   Swal.fire({  
+      
+     text: 'something went wrong ',
+   
+   })
+ } 
+}
+  
     }
 
 
 
   return (
-  
-      <Container fluid className='registerpage' style={{ height:'633px'}}>
+<>
+<Navcomponent/>
+<Container fluid className='registerpage' style={{ height:'633px'}}>
+      
         <Form onSubmit={handleSubmit} className='w-75 mx-auto my-5 p-5
          shadow-lg' style={{ border:'1px solid grey'}} > 
    <Form.Group className="mb-3 " >
@@ -152,6 +167,7 @@ const handleSubmit= async (e)=>{
  </Form>
 
  </Container>
+</>
    
   )
 }

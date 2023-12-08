@@ -1,0 +1,10 @@
+.pagination {
+    height: 50px;
+background-color: white;
+overflow: hidden;
+border: none;
+box-shadow: none;
+display: flex;
+align-items: center;
+justify-content: center;
+}

@@ -1,8 +1,8 @@
-.section6 ul{
+.listcontainer {
 list-style: none;
 
 }
-.section6 ul li{
+.lists {
     color:#64748B;
     font-weight: 700;
     line-height: 2em;

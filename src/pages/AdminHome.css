@@ -1,0 +1,26 @@
+.setadminback{
+    height:100vh;
+    background-position: center;
+    background-size: cover;
+position: relative;
+
+}
+
+  .setadminback::after {
+    content: "";
+    background-image: url(./images/backpic.jpg);
+ 
+ opacity: 0.2;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    position: absolute;
+    z-index: -1; 
+    background-size: cover;
+    background-position:bottom;
+    background-repeat: no-repeat; 
+    margin-left: 0; 
+  }
+  
+  

@@ -1,8 +1,7 @@
 import React from 'react'
-import { BASEURL } from '../Constants/baseURL'
 import './SingleCourtUser.css'
 import { useNavigate } from 'react-router-dom'
-import Navcomponent from '../componets/Navcomponent'
+
 function SingleCourtUser({data}) {
   const navigate=useNavigate()
   const openthisCard=()=>{
@@ -13,8 +12,16 @@ function SingleCourtUser({data}) {
     <>
    
        <div className='courtbox' onClick={()=>openthisCard()}>
-        <h4 className='courttext'>{data.name}</h4>
-        <img className="courtimage" src={`${BASEURL}/uploads/${data.image[0].filename}`} alt="" />
+        <div className='d-flex flex-column courttext'>
+        
+        <h4 className=''>{data.name}</h4>
+        {data.location}
+       
+        </div>
+        
+     
+        <img className="courtimage" src={`${process.env.REACT_APP_BASE_URL}/uploads/${data.image[0].filename}`} alt="" /><br/>
+        
        </div>
     </>
  

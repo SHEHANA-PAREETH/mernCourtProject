@@ -8,6 +8,7 @@ import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom';
 import { setUser , setOpenLoader } from '../toolkit/userSlice';
 import { useDispatch } from 'react-redux';
+import { ToastError } from '../plugins/Toast';
 
 
 function Loginform() {
@@ -32,36 +33,51 @@ const handleInputChange=(e)=>{
   e.preventDefault()
   console.log(loginData);
   dispatch(setOpenLoader(true))
-  axios.post("http://localhost:4000/auth/login",loginData).then((res)=>{
-    console.log(res.data.msg);
-    if(res.data.msg==="user login success"){
-
-      Swal.fire({  
-         
-        text: 'login successfully.',
-        icon: 'success'
-      }).then(()=>{
-        localStorage.setItem('token',res.data.token)
-        dispatch(setUser(res.data.user))
-        navigate('/home')
-      })
-      
-    }
-    if(res.data.msg==="invalid credentials"){
-setInvalid("account doesn't exist,create new account" )
-setTimeout(()=>{
-  setInvalid('')
-},3000)
-    }
-    if(res.data.msg==='password incorrect'){
-      setInvalid("Password is incorrect" )
-setTimeout(()=>{
-  setInvalid('')
-},3000)
-    }
-   
-  })
-  dispatch(setOpenLoader(false))
+  function hasEmptyValue(obj){
+    return Object.values(obj).some(value=> value === "")
+  }
+  if(hasEmptyValue(loginData)){
+    ToastError("field values cannot be empty")
+  }
+  else{
+    axios.post("http://localhost:4000/auth/login",loginData).then((res)=>{
+      console.log(res.data.msg);
+      if(res.data.msg==="user login success"){
+  
+        Swal.fire({  
+           
+          text: 'login successfully.',
+          icon: 'success'
+        }).then(()=>{
+          localStorage.setItem('token',res.data.token)
+          dispatch(setUser(res.data.user))
+          if(res.data.user.role === 3){
+            navigate('/adminhome')
+          }
+          else{
+            navigate('/home')
+          }
+        
+        })
+        
+      }
+      if(res.data.msg === "invalid credentials"){
+  setInvalid("account doesn't exist,create new account" )
+  setTimeout(()=>{
+    setInvalid('')
+  },3000)
+      }
+      if(res.data.msg==='password incorrect'){
+        setInvalid("Password is incorrect" )
+  setTimeout(()=>{
+    setInvalid('')
+  },3000)
+      }
+     
+    })
+    dispatch(setOpenLoader(false))
+  }
+  
  }
   return (
     <Form onSubmit={handleSubmit}>

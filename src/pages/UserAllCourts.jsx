@@ -5,19 +5,27 @@ import Navcomponent from '../componets/Navcomponent'
 import {useNavigate } from 'react-router-dom'
 
 import { ToastError } from '../plugins/Toast'
+import { useSelector } from 'react-redux'
+import PaginationComponent from '../componets/PaginationComponent'
 
 function UserAllCourts() {
   const navigate=useNavigate()
   const[courtData,setCourtData]=useState([])
+  const [totalDocuments,setTotalDocuments]=useState()
+  const {selectedPage}=useSelector((state)=>state.user)
+  const {searchText}=useSelector((state)=>state.user)
   useEffect(() => {
     getAllcourtData()
-  }, [])
+  }, [searchText,selectedPage])
   
   const getAllcourtData=()=>{
     try{
-      AxiosInstance.get('/getallcourts').then((res)=>{
+      console.log(selectedPage);
+      AxiosInstance.get('/getallcourts',{params:{searchText:searchText ?? null,selectedPage:selectedPage}}).then((res)=>{
   
         setCourtData(res?.data?.data);
+       console.log(res?.data?.totaldocuments);//get documents
+       setTotalDocuments(res?.data?.totaldocuments)
         console.log(courtData);
     }).catch((res)=>{
   if(res.response.data.message==="unauthorized request"){
@@ -40,6 +48,9 @@ function UserAllCourts() {
     {
         courtData.map((element)=><SingleCourtUser data={element}/>)
     }
+  <div>
+  <PaginationComponent totalDocuments={totalDocuments}/>
+  </div>
     </>
   )
 }

@@ -93,7 +93,7 @@ const handleSubmit=(e)=>{
       }).then(()=>{
         setIsOpen(false)
         setShowmodal(false)
-        
+        window.location.reload()
       })
     }
     else{
@@ -161,10 +161,10 @@ return (
             }
           </div>
         
-        <Form.Label className='border border-1 p-2 fw-bolder' onClick={()=>setShowDropdown(!showDropdown)} style={{cursor:'pointer'}}>Select Timings</Form.Label>
+        <Form.Label className='border border-1 p-2 fw-bolder rounded bg-success text-light' onClick={()=>setShowDropdown(!showDropdown)} style={{cursor:'pointer'}}>Select Timings</Form.Label>
          
           {showDropdown&&<div>
-            <ul>
+            <ul class="list-containermodal">
               
               {
                

@@ -4,6 +4,7 @@ import AxiosInstance from '../config/axiosinstance';
 import Singlecardcarousal from '../componets/Singlecardcarousal'
 import { Form ,Button} from 'react-bootstrap';
 import TimesheduleComponent from '../componets/TimesheduleComponent';
+import { ToastError } from '../plugins/Toast';
 function SINglecourtUserDetails() {
   const navigate=useNavigate()
     const [userCourt,setUserCourt]=useState({
@@ -46,7 +47,7 @@ AxiosInstance.get('/getslotsdata',{params:{date:new Date(selectedDate),courtId:i
   }
   
   if(resp.data.message==="no court bookings"){
-    alert('no court bookings at that date')
+   ToastError('no court bookings at that date')
   }
  
 }).catch((res)=>{
@@ -69,7 +70,7 @@ AxiosInstance.get('/getslotsdata',{params:{date:new Date(selectedDate),courtId:i
 <Button className='btn mt-2' type='submit' style={{backgroundColor:'#0D4A42'}}>ok</Button>
    </Form.Group> 
    </Form>
-   <div className='d-flex justify-content-center align-items-center gap-5 my-5'>
+   <div className='d-flex flex-wrap mx-5 justify-content-center align-items-center gap-5 my-5'>
    {timeShedules.map((obj)=><TimesheduleComponent data={obj}/>)}
    </div>
    

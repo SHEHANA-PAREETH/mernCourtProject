@@ -12,7 +12,7 @@ function CourtTable({startDate,endDate,id}) {
   setTableData(resp.data.data)
  })
      
-  }, [startDate,endDate])
+  }, [startDate,endDate,id])
   
   
   return (
@@ -20,16 +20,21 @@ function CourtTable({startDate,endDate,id}) {
     <Table className='w-50 mx-auto mt-5'>
     <thead className='text-start'>
         <tr>
-          <th>No</th>
+        <th>Si No</th>
           <th>DATE</th>
           <th>slots</th>
-          <th>price</th>
-          <th >Booking status</th>
         </tr>
       </thead>
-      {
-      tabledata.map((obj,index)=> <TableCourt data={obj} index={index}/>)
-    }
+      <tbody className='text-start'>
+        {tabledata.map((obj,index)=> <tr>
+        <td>{index+1}</td>
+      <td>{obj._id.split('T')[0]}</td>
+     <td >{obj.slotsData.map((slot)=> <span className='p-2  bg-warning border rounded-2'>{slot.slot.name}</span>)}</td> 
+        </tr>
+       )}
+       
+        
+      </tbody>
       </Table>
     
    

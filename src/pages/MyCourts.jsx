@@ -4,6 +4,7 @@ import AxiosInstance from '../config/axiosinstance'
 import { Container, Row ,Col} from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { ToastError } from '../plugins/Toast';
+import Navcomponent from '../componets/Navcomponent';
 
 function MyCourts() {
   const navigate=useNavigate()
@@ -25,7 +26,10 @@ function MyCourts() {
       })
   }
   return (
+    <>
+    <Navcomponent/>
    <Container>
+   
     <Row className=''>
       
       {
@@ -36,7 +40,7 @@ mycourtData.map(courtdata=>
     </Row>
    </Container>
  
-    
+   </>
     
   )
 }

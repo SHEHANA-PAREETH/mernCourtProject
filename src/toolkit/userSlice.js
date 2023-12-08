@@ -2,7 +2,9 @@ import {createSlice} from '@reduxjs/toolkit'
 
 const INITIAL_STATE={
     user: JSON.parse(localStorage.getItem('user'))||{},
-    openLoader:false
+    openLoader:false,
+    searchText:"",
+    selectedPage: 1
 };
 const userSlice=createSlice({
     name:'user',
@@ -16,9 +18,15 @@ const userSlice=createSlice({
         },
         setOpenLoader:(state,action)=>{
             state.openLoader=action.payload
+        },
+        setSearchText:(state,action)=>{
+            state.searchText=action.payload
+        },
+        setSelectedPage:(state,action)=>{
+            state.selectedPage=action.payload
         }
     }
 })
 
-export const {setUser,setOpenLoader}=userSlice.actions
+export const {setUser,setOpenLoader,setSearchText,setSelectedPage}=userSlice.actions
 export default userSlice.reducer

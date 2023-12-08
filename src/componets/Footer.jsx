@@ -9,14 +9,14 @@ function Footer() {
     <Container className=' section6'>
        <Row className=''>
         <Col className=' my-5 footer d-flex flex-column justify-content-center align-items-center' sm={12} md={6}  >
-        <ul >
-            <li href="">Blog</li>
-            <li href="">About Us</li>
-            <li href="">Terms of Use</li>
-            <li href="">Privacy Policy</li>
-            <li href="">Developers</li>
-            <li href="">Contact</li>
-            <li href="">
+        <ul className='listcontainer' >
+            <li className="lists" href="">Blog</li>
+            <li className="lists" href="">About Us</li>
+            <li className="lists" href="">Terms of Use</li>
+            <li className="lists"href="">Privacy Policy</li>
+            <li className="lists" href="">Developers</li>
+            <li className="lists" href="">Contact</li>
+            <li className="lists" href="">
 Affiliates & Resellers</li>
         </ul>
         </Col >

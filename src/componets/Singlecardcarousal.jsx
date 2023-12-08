@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import './Singlecardcarousal.css'
-import { BASEURL } from '../Constants/baseURL';
+
 import { Container,Row,Col } from 'react-bootstrap';
 import Navcomponent from './Navcomponent';
 
@@ -21,7 +21,7 @@ function Singlecardcarousal({courtsdetails}) {
   </div>
   <div className="carousel-inner">
     <div className="carousel-item active" data-bs-interval="10000">
-      <img src={`${BASEURL}/uploads/${courtsdetails.image1}`} class="d-block w-" alt="..." style={{height:'400px'}}/>
+      <img src={`${process.env.REACT_APP_BASE_URL}/uploads/${courtsdetails.image1}`} class="d-block w-" alt="..." style={{height:'400px'}}/>
       <div className="carousel-caption d-none d-md-block">
        <div className='carousal-text'>
        <h2 >{courtsdetails.name}</h2>
@@ -31,7 +31,7 @@ function Singlecardcarousal({courtsdetails}) {
       </div>
     </div>
     <div className="carousel-item" data-bs-interval="2000">
-      <img src={`${BASEURL}/uploads/${courtsdetails.image2}`} class="d-block w-100" alt="..." style={{height:'400px'}}/>
+      <img src={`${process.env.REACT_APP_BASE_URL}/uploads/${courtsdetails.image2}`} class="d-block w-100" alt="..." style={{height:'400px'}}/>
       <div className="carousel-caption d-none d-md-block">
       <div className='carousal-text'>
        <h2  >{courtsdetails.name}</h2>
@@ -40,7 +40,7 @@ function Singlecardcarousal({courtsdetails}) {
       </div>
     </div>
     <div className="carousel-item">
-      <img src={`${BASEURL}/uploads/${courtsdetails.image3}`} class="d-block w-100" alt="..." style={{height:'400px'}}/>
+      <img src={`${process.env.REACT_APP_BASE_URL}/uploads/${courtsdetails.image3}`} class="d-block w-100" alt="..." style={{height:'400px'}}/>
       <div className="carousel-caption d-none d-md-block">
       <div className='carousal-text'>
        <h2  >{courtsdetails.name}</h2>

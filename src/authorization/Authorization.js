@@ -11,11 +11,20 @@ const user=JSON.parse(localStorage.getItem('user'))
 
 export function LoginPageAuth(){
   const token=localStorage.getItem('token')
+  const user=JSON.parse(localStorage.getItem('user'))
   return(
-    token ?  <Navigate to="/home"/> :<Outlet/>
-  )
+    (token && user.role=== 1) ||  (token && user.role=== 2) ?  <Navigate to="/home"/> :<Outlet/>
+  
+    )
 }
-
+export function AdminLoginPageAuth(){
+  const token=localStorage.getItem('token')
+  const user=JSON.parse(localStorage.getItem('user'))
+  return(
+    (token && user.role === 3) ?  <Outlet/>:< Navigate to="/" />
+  
+    )
+}
 export function AdminAuthorization() {
   const token=localStorage.getItem('token')
 const user=JSON.parse(localStorage.getItem('user'))
@@ -37,3 +46,4 @@ return (
   (token && user.role=== 1) ||  (token && user.role=== 2) ? <Outlet/>:< Navigate to="/" />
 )
 }
+

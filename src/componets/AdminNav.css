@@ -1,0 +1,22 @@
+.adminhome  {
+    min-width: 200px;
+    max-width:350px;
+ 
+ 
+    background-color: black;
+    
+    }
+    .adminhome .nav{
+        border: none;
+        background-color: black;
+        min-height: 80.3vh;
+        overflow: hidden;
+    }
+    .adminhome .nav  {
+       display: flex;
+     
+       align-items: center;
+    }
+    .nav-item .nav-link{
+        color:white;
+    }
