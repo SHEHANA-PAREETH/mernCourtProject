@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { setUser , setOpenLoader } from '../toolkit/userSlice';
 import { useDispatch } from 'react-redux';
 import { ToastError } from '../plugins/Toast';
+import AxiosInstance from '../config/axiosinstance';
 
 
 function Loginform() {
@@ -40,7 +41,7 @@ const handleInputChange=(e)=>{
     ToastError("field values cannot be empty")
   }
   else{
-    axios.post("http://localhost:4000/auth/login",loginData).then((res)=>{
+    AxiosInstance.post("/auth/login",loginData).then((res)=>{
       console.log(res.data.msg);
       if(res.data.msg==="user login success"){
   
