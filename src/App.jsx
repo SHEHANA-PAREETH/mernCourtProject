@@ -28,10 +28,12 @@ import CancelledCourts from './componets/admin/CancelledCourts';
 
 
 function App() {
+  const {openLoader} = useSelector((state)=>state.user)
 
   return (
     <> 
    <Toast />
+   {openLoader ? <Loader/> : ''}
      <BrowserRouter>
         <Routes>  
         <Route element={<LoginPageAuth/>}>

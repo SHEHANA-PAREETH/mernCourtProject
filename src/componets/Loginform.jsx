@@ -33,7 +33,7 @@ const handleInputChange=(e)=>{
  const handleSubmit=(e)=>{
   e.preventDefault()
   console.log(loginData);
-  dispatch(setOpenLoader(true))
+  
   function hasEmptyValue(obj){
     return Object.values(obj).some(value=> value === "")
   }
@@ -41,6 +41,7 @@ const handleInputChange=(e)=>{
     ToastError("field values cannot be empty")
   }
   else{
+    dispatch(setOpenLoader(true))
     AxiosInstance.post("/auth/login",loginData).then((res)=>{
       console.log(res.data.msg);
       if(res.data.msg==="user login success"){
