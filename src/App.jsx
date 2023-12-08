@@ -45,17 +45,17 @@ function App() {
   
           <Route element={<VendorAuthorization/> }>
    
-        <Route  path='/registercourt' element={< RegisterCourt />}/>
+        <Route  path='/registercourt' element={<RegisterCourt/>}/>
 
-        <Route  path='/mycourts' element={< MyCourts />}></Route>
-        <Route  path='/openCourtEdit/:id' element={< SinglecardDetails/>}/>
+        <Route  path='/mycourts' element={<MyCourts/>}></Route>
+        <Route  path='/openCourtEdit/:id' element={<SinglecardDetails/>}/>
         </Route>
 <Route element={<UserAuthorization/>} >
 <Route path="/userBookings" element={<UserBooking/>}/>
-<Route  path='/userallcourts' element={< UserAllCourts/>}/>
-<Route  path='/openUserCourtEdit/:id' element={< SINglecourtUserDetails/>}/>
-<Route path='/getCancelledUserBookings' element={< CancelledBookings />}/>
-<Route  path='/uploadprofilepic' element={< UploadProfilePic />}/>
+<Route  path='/userallcourts' element={<UserAllCourts/>}/>
+<Route  path='/openUserCourtEdit/:id' element={<SINglecourtUserDetails/>}/>
+<Route path='/getCancelledUserBookings' element={<CancelledBookings />}/>
+<Route  path='/uploadprofilepic' element={<UploadProfilePic />}/>
 </Route>
 <Route element={<AdminLoginPageAuth/>}>
 <Route path="/adminhome" element={<AdminHome/>}/>

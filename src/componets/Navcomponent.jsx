@@ -69,7 +69,7 @@ navigate('/')
           <Nav className="me-auto">
           <Nav.Link href="/home" className='fw-bold text-light me-3'>Home</Nav.Link>
             
-          {user.role===1&&<Nav.Link href="/userallcourts" className='me-3 text-light'>Courts</Nav.Link>}
+          {user.role===1 && <Nav.Link href="/userallcourts" className='me-3 text-light'>Courts</Nav.Link>}
           {user.role===1&&<Nav.Link href="/userBookings" className='me-3 text-light'>My Bookings</Nav.Link>}
           
             {user.role===2&&<Nav.Link href="/mycourts" className='me-3 text-light'>My Courts</Nav.Link>}
