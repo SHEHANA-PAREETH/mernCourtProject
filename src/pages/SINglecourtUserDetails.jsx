@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import './SINglecourtUserDetails.css'
 import { useNavigate, useParams } from 'react-router-dom'
 import AxiosInstance from '../config/axiosinstance';
 import Singlecardcarousal from '../componets/Singlecardcarousal'
@@ -7,6 +8,7 @@ import TimesheduleComponent from '../componets/TimesheduleComponent';
 import { ToastError } from '../plugins/Toast';
 function SINglecourtUserDetails() {
   const navigate=useNavigate()
+  const [errorText,setErrorText]=useState()
     const [userCourt,setUserCourt]=useState({
         image1:'',
     image2:'',
@@ -24,8 +26,14 @@ function SINglecourtUserDetails() {
     useEffect(()=>{
 AxiosInstance.get('/getusersinglecourt',{params:{courtId:id}}).then((res)=>{
     console.log(res.data);
-    console.log(res.data.schedules)
-setSheduleDate(res.data.schedules)
+   // console.log(res.data.schedules)
+   if(res.data.schedules.length){
+    setSheduleDate(res.data.schedules)
+   }
+   else{
+    setErrorText("   Currently No Dates Available")
+   }
+
     setUserCourt({...userCourt,image1:res.data.images[0]?.filename,image2:res.data.images[1]?.filename,image3:res.data.images[2]?.filename,name:res.data.name,description:res.data.description,location:res.data.location})
 console.log(userCourt);
 
@@ -66,18 +74,23 @@ AxiosInstance.get('/getslotsdata',{params:{date:new Date(selectedDate),courtId:i
     <>
    
    <Singlecardcarousal courtsdetails={userCourt}/>
+   {errorText ? '' : <div className='slide-container my-5'><h4 className='  animate-text'>"Get ready to unleash your passion for the game! Seize the moment, conquer the court. Your victory starts with a click-book your slots now and let the games begin !!"</h4></div>}
  <Form onSubmit={getslotsData} className='mt-5 w-50 mx-auto'>
-   <Form.Group className="mb-3 d-flex flex-column" >
-   <h3>Dates Available For Booking</h3>
+ <Form.Group className="mb-3 d-flex " >
+   <h4>Dates Available For Booking : </h4>
+   {errorText ? <h4 className='text-danger'>{errorText}</h4>:''}
    <div className=' d-flex flex-wrap'>
    {sheduledates?.map((obj)=> <div className='p-4 text-danger fw-bolder'>
   {obj._id.split('T')[0]}</div> )}
    </div>
-  
+   </Form.Group>
+   {errorText ? '' :<Form.Group className="mb-3 d-flex flex-column" >
+   
      <Form.Label className='mb-3 fw-bolder'>Enter date to get available  slots</Form.Label>
      <Form.Control type="date" placeholder="enter date " value={selectedDate} onChange={(e)=>setSelectedDate(e.target.value)}  min={new Date().toISOString().split('T')[0]}  className='mb-3'/>
 <Button className='btn mt-2' type='submit' style={{backgroundColor:'#0D4A42'}}>ok</Button>
-   </Form.Group> 
+   </Form.Group> }
+   
    </Form>
    <div className='d-flex flex-wrap mx-5 justify-content-center align-items-center gap-5 my-5'>
    {timeShedules.map((obj)=><TimesheduleComponent data={obj}/>)}

@@ -1,0 +1,30 @@
+
+@keyframes slideFromLeft {
+    0% {
+        transform: translateX(-100%)
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+.slide-container{
+    position: relative;
+    overflow: hidden;
+    background-color: rgb(6, 125, 36);
+}
+.animate-text{
+ 
+color: white;
+animation: slideFromLeft 25s linear infinite;
+
+}
+.animate-text::before {
+    content: "";
+    position: absolute;
+    top:0;
+    bottom:0;
+    right:0;
+    left : 0;
+    z-index: -1;
+
+}
