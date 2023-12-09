@@ -18,11 +18,14 @@ function SINglecourtUserDetails() {
     })
     const [selectedDate,setSelectedDate]=useState(new Date().toISOString().split('T')[0])
     const[timeShedules,setTimeShedules]=useState([])
+    const [sheduledates,setSheduleDate]=useState()
     const {id}=useParams()
     console.log(id);
     useEffect(()=>{
 AxiosInstance.get('/getusersinglecourt',{params:{courtId:id}}).then((res)=>{
     console.log(res.data);
+    console.log(res.data.schedules)
+setSheduleDate(res.data.schedules)
     setUserCourt({...userCourt,image1:res.data.images[0]?.filename,image2:res.data.images[1]?.filename,image3:res.data.images[2]?.filename,name:res.data.name,description:res.data.description,location:res.data.location})
 console.log(userCourt);
 
@@ -65,7 +68,13 @@ AxiosInstance.get('/getslotsdata',{params:{date:new Date(selectedDate),courtId:i
    <Singlecardcarousal courtsdetails={userCourt}/>
  <Form onSubmit={getslotsData} className='mt-5 w-50 mx-auto'>
    <Form.Group className="mb-3 d-flex flex-column" >
-     <Form.Label className='mb-3'>Enter date to get available  slots</Form.Label>
+   <h3>Dates Available For Booking</h3>
+   <div className=' d-flex flex-wrap'>
+   {sheduledates?.map((obj)=> <div className='p-4 text-danger fw-bolder'>
+  {obj._id.split('T')[0]}</div> )}
+   </div>
+  
+     <Form.Label className='mb-3 fw-bolder'>Enter date to get available  slots</Form.Label>
      <Form.Control type="date" placeholder="enter date " value={selectedDate} onChange={(e)=>setSelectedDate(e.target.value)}  min={new Date().toISOString().split('T')[0]}  className='mb-3'/>
 <Button className='btn mt-2' type='submit' style={{backgroundColor:'#0D4A42'}}>ok</Button>
    </Form.Group> 
