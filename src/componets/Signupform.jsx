@@ -6,6 +6,7 @@ import Swal from 'sweetalert2'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import { faEye,faEyeSlash,faCircleExclamation } from '@fortawesome/free-solid-svg-icons'
+import AxiosInstance from '../config/axiosinstance';
 
 
 
@@ -65,7 +66,7 @@ const [errors,setErrors]=useState({
 
 
   console.log('success');
-  axios.post("http://localhost:4000/auth/register",loginData).then((res)=>{ 
+  AxiosInstance.post("/auth/register",loginData).then((res)=>{ 
   
     console.log(res.data);
     if(res.data.usercreated){
