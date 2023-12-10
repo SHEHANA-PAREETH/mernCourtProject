@@ -86,7 +86,7 @@ AxiosInstance.get('/getslotsdata',{params:{date:new Date(selectedDate),courtId:i
    </Form.Group>
    {errorText ? '' :<Form.Group className="mb-3 d-flex flex-column" >
    
-     <Form.Label className='mb-3 fw-bolder'>Enter date to get available  slots</Form.Label>
+     <Form.Label className='mb-3 fw-bolder'>Enter the prefered date from above to get available  slots</Form.Label>
      <Form.Control type="date" placeholder="enter date " value={selectedDate} onChange={(e)=>setSelectedDate(e.target.value)}  min={new Date().toISOString().split('T')[0]}  className='mb-3'/>
 <Button className='btn mt-2' type='submit' style={{backgroundColor:'#0D4A42'}}>ok</Button>
    </Form.Group> }

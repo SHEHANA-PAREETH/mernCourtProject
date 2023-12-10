@@ -66,6 +66,7 @@ const [errors,setErrors]=useState({
 
 
   console.log('success');
+  console.log(loginData);
   AxiosInstance.post("/auth/register",loginData).then((res)=>{ 
   
     console.log(res.data);
@@ -82,12 +83,25 @@ const [errors,setErrors]=useState({
      
     }
     else{
-      if(res.data.serverconnected){
-        setText('user exists')
+      if(res.data.msg === 'user exists'){
+        setText(' user exists')
         setTimeout(()=>{
           setText('')
         },3000)
       }
+      else if(res.data.msg === 'email exists'){
+        setText(' email exists')
+        setTimeout(()=>{
+          setText('')
+        },3000)
+      }
+      else if(res.data.msg === 'number exists'){
+        setText(' number exists')
+        setTimeout(()=>{
+          setText('')
+        },3000)
+      }
+    
       else{
         setText('server issue')
         setTimeout(()=>{
@@ -250,7 +264,7 @@ else{
   let reg=/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,15}$/;
   if(!reg.test(loginData.password1)){
     setErrors((prevData) => 
-    ({ ...prevData, password1:'  enter a valid password'}))
+    ({ ...prevData, password1:' Password must contain one Uppercase,one lowercase characters,one number and a special character'}))
     
     setTimeout(()=>{
       setErrors((prevData) => 
