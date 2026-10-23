@@ -1,49 +1,34 @@
 import React from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
 
-export function VendorAuthorization() {
-    const token=localStorage.getItem('token')
-const user=JSON.parse(localStorage.getItem('user'))
-  return (
-    (token && (user.role=== 2)) ? <Outlet/>:< Navigate to="/" />
-  )
+const getSession=()=>{
+  const token=localStorage.getItem('token')
+  let user=null
+  try{
+    user=JSON.parse(localStorage.getItem('user'))
+  }
+  catch(error){
+    user=null
+  }
+  return { token, role: token && user ? user.role : null }
 }
 
+const homeFor=(role)=>role===3 ? '/adminhome' : '/home'
+
+// lets the given roles through, everyone else goes to the login page
+const guard=(roles)=>function Guard(){
+  const { role }=getSession()
+  return roles.includes(role) ? <Outlet/> : <Navigate to="/" />
+}
+
+export const VendorAuthorization=guard([2])
+export const UserAuthorization=guard([1])
+export const HomeAuthorization=guard([1,2])
+export const AdminAuthorization=guard([3])
+export const AdminLoginPageAuth=guard([3])
+
+// login, sign up and forgot password: anyone already logged in is sent to their own home
 export function LoginPageAuth(){
-  const token=localStorage.getItem('token')
-  const user=JSON.parse(localStorage.getItem('user'))
-  return(
-    (token && user.role=== 1) ||  (token && user.role=== 2) ?  <Navigate to="/home"/> :<Outlet/>
-  
-    )
+  const { role }=getSession()
+  return role ? <Navigate to={homeFor(role)}/> : <Outlet/>
 }
-export function AdminLoginPageAuth(){
-  const token=localStorage.getItem('token')
-  const user=JSON.parse(localStorage.getItem('user'))
-  return(
-    (token && user.role === 3) ?  <Outlet/>:< Navigate to="/" />
-  
-    )
-}
-export function AdminAuthorization() {
-  const token=localStorage.getItem('token')
-const user=JSON.parse(localStorage.getItem('user'))
-return (
-  (token && user.role=== 3) ? <Outlet/>:< Navigate to="/" />
-)
-}
-export function UserAuthorization() {
-  const token=localStorage.getItem('token')
-const user=JSON.parse(localStorage.getItem('user'))
-return (
-  (token && user.role=== 1) ? <Outlet/>:< Navigate to="/" />
-)
-}
-export function HomeAuthorization() {
-  const token=localStorage.getItem('token')
-const user=JSON.parse(localStorage.getItem('user'))
-return (
-  (token && user.role=== 1) ||  (token && user.role=== 2) ? <Outlet/>:< Navigate to="/" />
-)
-}
-

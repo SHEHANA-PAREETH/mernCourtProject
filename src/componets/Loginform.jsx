@@ -1,22 +1,19 @@
 import React, { useState } from 'react'
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import Swal from 'sweetalert2'
-import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons'
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom';
 import { setUser , setOpenLoader } from '../toolkit/userSlice';
 import { useDispatch } from 'react-redux';
-import { ToastError } from '../plugins/Toast';
+import { ToastError, toastSuccess } from '../plugins/Toast';
 import AxiosInstance from '../config/axiosinstance';
 
 
 function Loginform() {
- 
+
 const navigate=useNavigate()
 const dispatch=useDispatch( )
-  const [invalid,setInvalid]=useState('')
+  const [showPassword,setShowPassword]=useState(false)
+  const [submitting,setSubmitting]=useState(false)
 const [loginData,setLoginData]=useState({
   email:'',
   password:''
@@ -24,16 +21,13 @@ const [loginData,setLoginData]=useState({
 
 const handleInputChange=(e)=>{
   const {name,value}=e.target
-  setLoginData((prevFormData) => 
+  setLoginData((prevFormData) =>
   ({ ...prevFormData, [name]:value}))
-
-
  }
 
- const handleSubmit=(e)=>{
+  const handleSubmit=(e)=>{
   e.preventDefault()
-  console.log(loginData);
-  
+
   function hasEmptyValue(obj){
     return Object.values(obj).some(value=> value === "")
   }
@@ -42,64 +36,58 @@ const handleInputChange=(e)=>{
   }
   else{
     dispatch(setOpenLoader(true))
+    setSubmitting(true)
     AxiosInstance.post("/auth/login",loginData).then((res)=>{
-      console.log(res.data.msg);
       if(res.data.msg==="user login success"){
-  
-        Swal.fire({  
-           
-          text: 'login successfully.',
-          icon: 'success'
-        }).then(()=>{
-          localStorage.setItem('token',res.data.token)
-          dispatch(setUser(res.data.user))
-          if(res.data.user.role === 3){
-            navigate('/adminhome')
-          }
-          else{
-            navigate('/home')
-          }
-        
-        })
-        
+        localStorage.setItem('token',res.data.token)
+        dispatch(setUser(res.data.user))
+        toastSuccess('Logged in successfully')
+        navigate(res.data.user.role === 3 ? '/adminhome' : '/home')
       }
-      if(res.data.msg === "invalid credentials"){
-  setInvalid("account doesn't exist,create new account" )
-  setTimeout(()=>{
-    setInvalid('')
-  },3000)
+      else if(res.data.msg === "invalid credentials"){
+        ToastError("Account doesn't exist, create a new account")
       }
-      if(res.data.msg==='password incorrect'){
-        setInvalid("Password is incorrect" )
-  setTimeout(()=>{
-    setInvalid('')
-  },3000)
+      else if(res.data.msg==='password incorrect'){
+        ToastError("Password is incorrect")
       }
-     
+      else if(res.data.msg==='account blocked'){
+        ToastError("Your account has been blocked. Please contact support.")
+      }
+    }).catch(()=>{
+      ToastError("Could not reach the server, please try again")
+    }).finally(()=>{
+      setSubmitting(false)
+      dispatch(setOpenLoader(false))
     })
-    dispatch(setOpenLoader(false))
   }
-  
+
  }
   return (
-    <Form onSubmit={handleSubmit}>
-    
-      <Form.Group className="mb-3" controlId="formBasicEmail">
-        <Form.Label>Email address</Form.Label>
-        <Form.Control type="email" placeholder="Enter email" name='email' value={loginData.email} onChange={handleInputChange}/>
-       
-      </Form.Group>
-     
+    <form onSubmit={handleSubmit} noValidate>
+      <div className='auth-field'>
+        <label htmlFor='login-email'>Email address</label>
+        <input id='login-email' className='auth-input' type='email' placeholder='you@example.com' name='email' autoComplete='email' value={loginData.email} onChange={handleInputChange}/>
+      </div>
 
-      <Form.Group className="mb-3" controlId="formBasicPassword">
-        <Form.Label>Password</Form.Label>
-        <Form.Control type="password" placeholder="Password" name='password' value={loginData.password} onChange={handleInputChange}/>
-      </Form.Group>
-      <Button variant=" w-100 mb-3" type="submit" style={{backgroundColor:'#0D4A42',color:'white'}}>
-        LOG IN
-      </Button>
-      {invalid?<p className='text-danger'> <FontAwesomeIcon icon={faCircleExclamation}/> {invalid}</p>:''}
-    </Form>
+      <div className='auth-field'>
+        <label htmlFor='login-password'>Password</label>
+        <div className='auth-input-wrap'>
+          <input id='login-password' className='auth-input has-toggle' type={showPassword?'text':'password'} placeholder='Enter your password' name='password' autoComplete='current-password' value={loginData.password} onChange={handleInputChange}/>
+          <button type='button' className='auth-eye' aria-label={showPassword?'Hide password':'Show password'} onClick={()=>setShowPassword(!showPassword)}>
+            <FontAwesomeIcon icon={showPassword?faEyeSlash:faEye}/>
+          </button>
+        </div>
+      </div>
+
+      <div className='auth-row'>
+        <span></span>
+        <a href='/forgotpassword'>Forgot password?</a>
+      </div>
+
+      <button className='auth-btn' type='submit' disabled={submitting}>
+        {submitting?'Logging in…':'Log in'}
+      </button>
+    </form>
   )
 }
 

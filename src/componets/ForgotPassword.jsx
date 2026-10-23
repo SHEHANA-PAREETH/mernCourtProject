@@ -1,137 +1,164 @@
 import React, { useState } from 'react'
-import {Form,Button, Nav} from 'react-bootstrap'
-import AxiosInstance from '../config/axiosinstance'
-import { faEye,faEyeSlash,faCircleExclamation } from '@fortawesome/free-solid-svg-icons'
+import { Link, useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faEye, faEyeSlash, faCircleExclamation } from '@fortawesome/free-solid-svg-icons'
+import AxiosInstance from '../config/axiosinstance'
 import { ToastError, toastSuccess } from '../plugins/Toast'
-import { useNavigate } from 'react-router-dom'
-function ForgotPassword() {
-    const [email,setEmail]=useState()
-    const [otp,setOtp]=useState(false)
-    const [otpvalue,setOtpValue]=useState()
-    const [verifyotp,setverifyotp]=useState(false)
-    const [passwordfield,setpasswordfield]=useState(false)
-    const[eye,setEye]=useState(false)
-    const [password1,setPassword1]=useState()
-    const [password2,setPassword2]=useState()
-    const navigate=useNavigate()
-    const [otpsendbutton,setotpsendbutton] =useState(true)
-    
-const handleSubmit=(e)=>{
-    e.preventDefault()
-    console.log(email);
-    AxiosInstance.get('/auth/forgotPassword',{params:{email:email}}).then((resp)=>{
-console.log(resp);
-if(resp.data.msg==="success"){
-    toastSuccess('OTP sent suucessfully')
-    setotpsendbutton(false)
-    setOtp(true)
-}
-    })
-}
-const handleChange=(e)=>{
-setOtpValue(e.target.value)
-setverifyotp(true)
-}
-const handleVerification=()=>{
-    AxiosInstance.get('/auth/verifyotp',{params:{otpvalue:otpvalue}}).then((resp)=>{
-        if(resp.data.msg==="success"){
-            toastSuccess('otp verified successfully')
-            setpasswordfield(true)
-            setverifyotp(false)
-            setOtp(false)
-            
-        }
-        if(resp.data.msg==="failed"){
-            ToastError('OTP invalid')
-            setpasswordfield(false)
-         //setotpsendbutton(true)
-          //setOtp(false)
-            //setverifyotp(false)
-           
-        }
-    })
-}
-const resetPaasword=()=>{
-    validatepassword1()
-    validatepassword2()
-    if( validatepassword1()&&validatepassword2()){
-        AxiosInstance.get('/auth/resetpassword',{params:{email:email,password1:password1}}).then((resp)=>{
-            console.log(resp);
-            if(resp.data.passwordupdated){//true
-toastSuccess('Password updated successfully')
-navigate('/')
-            }
-            else{
-             ToastError('something went wrong') 
-             setpasswordfield(false)  
-            }
-                })
-    }
-  
-}
+import '../pages/login.css'
 
-    const validatepassword1=()=>{
-        if (password1.length < 8) {
-         ToastError(' Password must contain greater than or equal to 8 characters.')
-         return false
+const PASSWORD_REGEX=/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,15}$/
+
+function ForgotPassword() {
+  const navigate=useNavigate()
+  const [step,setStep]=useState(1)// 1 email, 2 code, 3 new password
+  const [email,setEmail]=useState('')
+  const [otp,setOtp]=useState('')
+  const [password1,setPassword1]=useState('')
+  const [password2,setPassword2]=useState('')
+  const [showPassword,setShowPassword]=useState(false)
+  const [busy,setBusy]=useState(false)
+  const [error,setError]=useState('')
+
+  const run=(request,onDone)=>{
+    setError('')
+    setBusy(true)
+    request().then(onDone).catch(()=>ToastError('Something went wrong, please try again')).finally(()=>setBusy(false))
+  }
+
+  const sendCode=(e)=>{
+    e && e.preventDefault()
+    if(!email.trim()){
+      setError('Enter your email address')
+      return
+    }
+    run(()=>AxiosInstance.post('/auth/forgotPassword',{email}),(resp)=>{
+      if(resp.data.msg==='success'){
+        toastSuccess('If that email has an account, a code is on its way')
+        setStep(2)
+      }
+    })
+  }
+
+  const verifyCode=(e)=>{
+    e.preventDefault()
+    if(otp.length!==6){
+      setError('Enter the 6 digit code from your email')
+      return
+    }
+    run(()=>AxiosInstance.post('/auth/verifyotp',{email,otp}),(resp)=>{
+      if(resp.data.msg==='success'){
+        toastSuccess('Code verified')
+        setStep(3)
       }
       else{
-        let reg=/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,15}$/;
-        if(!reg.test(password1)){
-            ToastError('enter a valid password which contains atleast one uppercase character,lowercase character,number and special characters')
-         return false
-        }
-else{
-    return true
-}
-        
+        setError('That code is wrong or has expired')
       }
-      
-      
-      }
-      const validatepassword2=()=>{
-        if (password1 !== password2) {
-            ToastError("Passwords don't match.")
-            return false
+    })
+  }
+
+  const resetPassword=(e)=>{
+    e.preventDefault()
+    if(!PASSWORD_REGEX.test(password1)){
+      setError('Use 8-15 characters with an uppercase letter, a lowercase letter, a number and a special character')
+      return
+    }
+    if(password1!==password2){
+      setError("Passwords don't match")
+      return
+    }
+    run(()=>AxiosInstance.post('/auth/resetpassword',{email,otp,password:password1}),(resp)=>{
+      if(resp.data.passwordupdated){
+        toastSuccess('Password updated, please log in')
+        navigate('/')
       }
       else{
-        return true
+        ToastError('Could not update the password, please start again')
+        setStep(1)
       }
-      
-      
-      }
+    })
+  }
+
+  const titles={
+    1:['Forgot your password?',"Enter your email and we'll send you a 6 digit code."],
+    2:['Check your email',`We sent a code to ${email}. It expires in 10 minutes.`],
+    3:['Choose a new password','Pick something strong that you have not used before.'],
+  }
 
   return (
-    <div>
-        <Form onSubmit={handleSubmit} className='d-flex flex-column justify-content-center align-items-center bg-dark' style={{height:'100vh'}}>
-         <Form.Group className="mb-3 w-50" controlId="formBasicEmail">
-        <Form.Label className='my-2 text-light fw-bolder'>Email address</Form.Label>
-        <Form.Control type="email" placeholder="Enter email" name='email' onChange={(e)=>{setEmail(e.target.value);
-        setotpsendbutton(true);setOtp(false);setverifyotp(false)}}/>
-      </Form.Group>
-      {otpsendbutton?<Button type="submit" className="btn-light">Send OTP through Email</Button>:''}
-      {otp?<div className='mt-2'><label className='text-light fw-bolder p-2 ms-5'>enter OTP</label><br/><input className='p-1 border border-2 rounded' onChange={handleChange}/></div>:''}
-      {verifyotp?<Button className="btn-light fw-bolder mt-2" onClick={handleVerification}>Verify OTP</Button>:""}
-      
-      {passwordfield?<div>
-        <Form.Group className="mb-3" controlId="formBasicPassword">
-        <Form.Label className='text-light mt-2'> Password</Form.Label>
-        <Form.Control type="password" placeholder="Password" name='password1'  onChange={(e)=>setPassword1(e.target.value)} onBlur={validatepassword1}/>
+    <div className='auth-page'>
+      <section className='auth-hero'>
+        <div className='auth-brand'>
+          <span className='auth-brand-mark'>⚽</span>
+          Court Booking
+        </div>
+        <div>
+          <h1>Back in the game <span>in a minute.</span></h1>
+          <p>Reset your password with a one-time code and get back to booking your courts.</p>
+        </div>
+        <div className='auth-stats'>
+          <div><strong>3 steps</strong><small>Email, code, new password</small></div>
+        </div>
+      </section>
 
-      {eye?<FontAwesomeIcon className='position-absolute top-50 start-100 translate-middle' style={{marginLeft:'-30px',marginTop:'6px'}} icon={faEyeSlash} onClick={()=>setEye(false)}/>:<FontAwesomeIcon className='position-absolute top-50 start-50 translate-middle ' style={{marginLeft:'80px',marginTop:'16px'}} icon={faEye} onClick={()=>setEye(true)}/>}
-      </Form.Group>
-     
-      <Form.Group className="mb-3 " controlId="formBasicPassword">
-        <Form.Label className='text-light'>Confirm Password</Form.Label>
-        <Form.Control type="password" placeholder="Password" name='password2'  onChange={(e)=>setPassword2(e.target.value)} onBlur={validatepassword2}/>
+      <section className='auth-panel'>
+        <div className='auth-card'>
+          <div className='auth-steps'>
+            {[1,2,3].map((n)=><span key={n} className={n<=step?'done':''}/>)}
+          </div>
+          <h2>{titles[step][0]}</h2>
+          <p className='auth-sub'>{titles[step][1]}</p>
 
-      </Form.Group>
+          {error && <div className='auth-alert'><FontAwesomeIcon icon={faCircleExclamation}/> {error}</div>}
 
-      <Button onClick={resetPaasword}>Reset Password</Button>
-      </div>:''}
-      </Form>
+          {step===1 && (
+            <form onSubmit={sendCode} noValidate>
+              <div className='auth-field'>
+                <label htmlFor='fp-email'>Email address</label>
+                <input id='fp-email' className='auth-input' type='email' placeholder='you@example.com' autoComplete='email' value={email} onChange={(e)=>setEmail(e.target.value)}/>
+              </div>
+              <button className='auth-btn' type='submit' disabled={busy}>{busy?'Sending…':'Send code'}</button>
+            </form>
+          )}
 
+          {step===2 && (
+            <form onSubmit={verifyCode} noValidate>
+              <div className='auth-field'>
+                <label htmlFor='fp-otp'>6 digit code</label>
+                <input id='fp-otp' className='auth-input auth-otp' inputMode='numeric' maxLength={6} placeholder='······' autoComplete='one-time-code' value={otp} onChange={(e)=>setOtp(e.target.value.replace(/\D/g,''))}/>
+              </div>
+              <button className='auth-btn' type='submit' disabled={busy}>{busy?'Checking…':'Verify code'}</button>
+              <div className='auth-links'>
+                <button type='button' className='auth-link' onClick={()=>{setStep(1);setOtp('');setError('')}}>Change email</button>
+                <button type='button' className='auth-link' disabled={busy} onClick={()=>sendCode()}>Resend code</button>
+              </div>
+            </form>
+          )}
+
+          {step===3 && (
+            <form onSubmit={resetPassword} noValidate>
+              <div className='auth-field'>
+                <label htmlFor='fp-pass1'>New password</label>
+                <div className='auth-input-wrap'>
+                  <input id='fp-pass1' className='auth-input has-toggle' type={showPassword?'text':'password'} placeholder='Create a password' autoComplete='new-password' value={password1} onChange={(e)=>setPassword1(e.target.value)}/>
+                  <button type='button' className='auth-eye' aria-label={showPassword?'Hide password':'Show password'} onClick={()=>setShowPassword(!showPassword)}>
+                    <FontAwesomeIcon icon={showPassword?faEyeSlash:faEye}/>
+                  </button>
+                </div>
+                <p className='auth-hint'>8-15 characters with an uppercase letter, a lowercase letter, a number and a special character.</p>
+              </div>
+              <div className='auth-field'>
+                <label htmlFor='fp-pass2'>Confirm password</label>
+                <input id='fp-pass2' className='auth-input' type={showPassword?'text':'password'} placeholder='Repeat your password' autoComplete='new-password' value={password2} onChange={(e)=>setPassword2(e.target.value)}/>
+              </div>
+              <button className='auth-btn' type='submit' disabled={busy}>{busy?'Saving…':'Reset password'}</button>
+            </form>
+          )}
+
+          <p className='auth-switch'>
+            Remembered it? <Link to='/' className='auth-link'>Back to log in</Link>
+          </p>
+        </div>
+      </section>
     </div>
   )
 }

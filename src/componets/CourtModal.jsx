@@ -1,188 +1,86 @@
 import React, { useEffect, useState } from 'react'
-import BUTTON from 'react-bootstrap/Button';
-import Modal from 'react-modal';
-import { TIMINGS } from '../Constants/timings';
-import  './CourtModel.css';
-import Form from 'react-bootstrap/Form';
-import { Container } from 'react-bootstrap';
-import AxiosInstance from '../config/axiosinstance';
-import Swal from 'sweetalert2'
-import { useNavigate, useParams } from 'react-router-dom';
+import Modal from 'react-modal'
+import AxiosInstance from '../config/axiosinstance'
+import { ToastError, toastSuccess } from '../plugins/Toast'
+import SlotPicker from './SlotPicker'
 
-function CourtModal({showmodal,setShowmodal,singlcourt}) {
-   const {id}=useParams()
-  
-  const customStyles = {
-        content: {
-          top: '50%',
-          left: '50%',
-          right: 'auto',
-          bottom: 'auto',  
-          marginRight: '-50%',
-          width:'40%',
-          transform: 'translate(-50%, -50%)',
-        },
-      };
-      const navigate=useNavigate()
-let subtitle;
-const[minendDate,setMinendDate]=useState()
-const[minimumDate,setMindate]=useState()
-  const [modalIsOpen, setIsOpen] = React.useState(showmodal);
-const [showDropdown,setShowDropdown]=useState(false)
-const [selectedTimings,setSelectedTimings]=useState([])
-const [courtTiming,setCourtTiming]=useState({
-  startingDate:'',
-  endingDate:'',
-  
-})
-const [cost,setCost]=useState('')
-  function afterOpenModal() {
-    // references are now sync'd and can be accessed.
-    subtitle.style.color = '#f00';
+// "Create schedule": adds the same slots at the same price for a range of dates
+function CourtModal({court, courtId, onClose, onDone}) {
+  const today=new Date().toLocaleDateString('en-CA')// local YYYY-MM-DD
+  const [minStart,setMinStart]=useState(today)
+  const [startDate,setStartDate]=useState('')
+  const [endDate,setEndDate]=useState('')
+  const [cost,setCost]=useState('')
+  const [slots,setSlots]=useState([])
+  const [saving,setSaving]=useState(false)
+
+  // new dates must start after the latest date that already has slots
+  useEffect(()=>{
+    AxiosInstance.get('/vendor/getlatestupdateddate',{params:{courtId}}).then((res)=>{
+      if(res?.data?.msg==='success'){
+        const next=new Date(res.data.minDate)
+        next.setUTCDate(next.getUTCDate()+1)
+        const nextDay=next.toISOString().split('T')[0]
+        setMinStart(nextDay>today ? nextDay : today)
+      }
+    }).catch(()=>{})
+  },[courtId,today])
+
+  const submit=(e)=>{
+    e.preventDefault()
+    if(!startDate || !endDate) return ToastError('Choose a start and an end date')
+    if(endDate<startDate) return ToastError('The end date must be on or after the start date')
+    if(!(Number(cost)>0)) return ToastError('Enter the price per slot')
+    if(slots.length===0) return ToastError('Select at least one time slot')
+
+    setSaving(true)
+    AxiosInstance.post('/vendor/addcourtTimings',{
+      starEndDate:{ startingDate:new Date(startDate), endingDate:new Date(endDate) },
+      slotLists:slots,
+      cost:Number(cost),
+      courtId,
+    }).then((res)=>{
+      if(res.data.msg){
+        toastSuccess('Schedule added successfully')
+        onDone()
+      }
+      else{
+        ToastError('Something went wrong')
+      }
+    }).catch(()=>ToastError('Could not add the schedule')).finally(()=>setSaving(false))
   }
 
-  function closeModal() {
-    setIsOpen(false);
-    setShowmodal(false)
-  }
-const addNewTime=(element,index)=>{
-  
-  if(selectedTimings.includes(element))
-  {
-    return
-  }
-  else
-  {
-    setSelectedTimings([...selectedTimings,element])
-    console.log(index);
-    TIMINGS.splice(index,1)
-    console.log(TIMINGS);
-    console.log(selectedTimings);
-  }
-
-}
-
-const addToTheTimings=(element,index)=>{
- 
-console.log(element);
-const newTiming=[...selectedTimings]
-newTiming.splice(index,1)
-setSelectedTimings(newTiming)
-TIMINGS.push(element)
-}
-const handleSubmit=(e)=>{
-  e.preventDefault()
-  console.log(courtTiming);
-  console.log(selectedTimings);
-  AxiosInstance({
-    method:'post',
-    url:'/vendor/addcourtTimings',
-    data:{
-      starEndDate:courtTiming,
-      slotLists:selectedTimings,
-      cost:cost,
-      courtId:id
-    }
-  }).then((res)=>{
-    
-    if(res.data.msg){
-      Swal.fire({  
-         
-        text: 'shedules added successfully.',
-        icon: 'success'
-      }).then(()=>{
-        setIsOpen(false)
-        setShowmodal(false)
-        window.location.reload()
-      })
-    }
-    else{
-      Swal.fire({  
-         
-        text: 'something went wrong ',
-      })
-}})}
-
-useEffect(()=>{
-  AxiosInstance.get('/vendor/getlatestupdateddate',{params:{courtId:id}}).then((res)=>{
-    if(res?.data?.msg==='success'){
-      let d=new Date(res?.data?.minDate)
-      console.log(d);
-  d.setDate(d.getDate()+1)
-   setMindate(d.toISOString().split('T')[0]);
-  console.log(minimumDate);
-    }
-    if(res?.data?.msg==='failed'){//courtshedules empty
-      const date = new Date();
-     setMindate(date.toISOString().split('T')[0]);
-    }
-
-
-})
-},[courtTiming])
- 
-const findMinendDate=()=>{
-  console.log(courtTiming.startingDate);
-let end=new Date(courtTiming.startingDate)
-end.setDate(end.getDate()+1)
-setMinendDate(end.toISOString().split('T')[0])
-console.log(minendDate);
-}
-return (
-    
-      <Modal
-        isOpen={modalIsOpen}
-        onAfterOpen={afterOpenModal}
-        onRequestClose={closeModal}
-        style={customStyles}
-        contentLabel="Example Modal"
-      >
-        <h5 className='text-success text-center my-3' ref={(_subtitle) => (subtitle = _subtitle)}>{singlcourt.name}<br/>{singlcourt.location}</h5>
-       
-          <Form onSubmit={handleSubmit}>
-          <Form.Group className="mb-3" >
-        <Form.Label className=''>Start date</Form.Label>
-        <Form.Control type="date" min={minimumDate} onBlur={findMinendDate} onChange={(e)=>setCourtTiming({...courtTiming,startingDate:new Date(e.target.value)})}/>
-      </Form.Group>
-      <Form.Group className="mb-3" >
-        <Form.Label className=''>End date</Form.Label>
-        <Form.Control type="date" min={minendDate} onChange={(e)=>setCourtTiming({...courtTiming,endingDate:new Date(e.target.value)})}/>
-      </Form.Group>
-      <Form.Group className="mb-3" >
-        <Form.Label className=''>Cost</Form.Label>
-        <Form.Control type="number" placeholder="Enter cost"   onChange={(e)=>setCost(e.target.value)}/>
-      </Form.Group>
-          
-         <div className='mt-3 ms-2'>
-            {
-              selectedTimings.map((element,index)=>
-              <span className='selectedTimings '   key={element.id} onClick={()=>addToTheTimings(element,index)}>{element.name}</span>
-              )
-            }
+  return (
+    <Modal isOpen onRequestClose={onClose} className='vc-modal' overlayClassName='vc-overlay' ariaHideApp={false} contentLabel='Create schedule'>
+      <form onSubmit={submit} style={{display:'flex',flexDirection:'column',minHeight:0}} noValidate>
+        <div className='vc-modal-head'>
+          <h3>Create schedule</h3>
+          <p>{court.name} · {court.location}</p>
+        </div>
+        <div className='vc-modal-body'>
+          <div className='vc-row'>
+            <div className='vc-field'>
+              <label htmlFor='vc-start'>Start date</label>
+              <input id='vc-start' className='vc-input' type='date' min={minStart} value={startDate} onChange={(e)=>{setStartDate(e.target.value); if(endDate && e.target.value>endDate) setEndDate('')}}/>
+            </div>
+            <div className='vc-field'>
+              <label htmlFor='vc-end'>End date</label>
+              <input id='vc-end' className='vc-input' type='date' min={startDate || minStart} value={endDate} onChange={(e)=>setEndDate(e.target.value)}/>
+            </div>
           </div>
-        
-        <Form.Label className='border border-1 p-2 fw-bolder rounded bg-success text-light' onClick={()=>setShowDropdown(!showDropdown)} style={{cursor:'pointer'}}>Select Timings</Form.Label>
-         
-          {showDropdown&&<div>
-            <ul class="list-containermodal">
-              
-              {
-               
-                TIMINGS.map((element,index)=> 
-                <li onClick={()=>addNewTime(element,index)} key={element.id} className='listitemsmodal'>{element.name}</li>
-                )
-              }
-              </ul>
-              </div>}
-              <BUTTON className='btn-success my-1 mx-auto w-100' type="submit" >submit</BUTTON>
-              </Form>
-         
-       
-          <BUTTON className='btn-success my-1 mx-auto w-100' onClick={closeModal}>close</BUTTON>
-          
-      </Modal>
-      
-      )
-  }
+          <div className='vc-field'>
+            <label htmlFor='vc-cost'>Price per slot (₹)</label>
+            <input id='vc-cost' className='vc-input' type='number' min='1' placeholder='e.g. 800' value={cost} onChange={(e)=>setCost(e.target.value)}/>
+          </div>
+          <SlotPicker selected={slots} onChange={setSlots}/>
+        </div>
+        <div className='vc-modal-foot'>
+          <button type='button' className='vc-btn ghost' onClick={onClose}>Cancel</button>
+          <button type='submit' className='vc-btn' disabled={saving}>{saving?'Saving…':'Create schedule'}</button>
+        </div>
+      </form>
+    </Modal>
+  )
+}
 
 export default CourtModal

@@ -2,126 +2,109 @@ import React, { useEffect, useState } from 'react'
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import logo from './images/download.png'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import NavDropdown from 'react-bootstrap/NavDropdown'
-import { faCartShopping, faUser,faPen} from '@fortawesome/free-solid-svg-icons'
-import { useDispatch, useSelector } from 'react-redux';
-import { faTwitterSquare, faFacebook,faDribbble, faLinkedin, faInstagram,faTwitter} from "@fortawesome/free-brands-svg-icons";
-import Dropdown from 'react-bootstrap/Dropdown';
-import { useNavigate } from 'react-router-dom';
-import AxiosInstance from '../config/axiosinstance';
-import { setSearchText } from '../toolkit/userSlice';
-
+import logo from './images/download.png'
 import defaultpic from './images/profile.png'
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faMagnifyingGlass, faImage, faRightFromBracket, faWallet } from '@fortawesome/free-solid-svg-icons'
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import AxiosInstance from '../config/axiosinstance';
+import { imageUrl } from '../config/imageUrl';
+import { setSearchText } from '../toolkit/userSlice';
+import './Navcomponent.css'
 
 function Navcomponent() {
 const [wallet,setWallet]=useState()
 const [imageurl,setUrl]=useState()
 const dispatch= useDispatch()
+const navigate=useNavigate()
+const { pathname }=useLocation()
 
 const{user}=useSelector((state)=>state.user)
-console.log(user);
+
 useEffect(()=>{
+  AxiosInstance.get(`/getprofiepic`).then((resp)=>{
+    if(resp?.data?.url){
+      setUrl(resp?.data?.url)
+    }
+  }).catch((error)=>{
+    console.log(error);
+  })
+},[])
+
+const getWallet= async()=>{
   try{
-    AxiosInstance.get(`/getprofiepic`).then((resp)=>{
-      console.log(resp);
-      if(resp?.data?.url){
-        setUrl(resp?.data?.url)
-      } 
-      
-    })
+    const result= await AxiosInstance.get('payment/getwalletBalance')
+    setWallet(result.data.amount)
   }
   catch(error){
-console.log(error);
+    console.log(error);
   }
-
-},[])
-const getWallet= async()=>{
-const result= await  AxiosInstance.get('payment/getwalletBalance')
-console.log(result);
-console.log(result.data.amount);
-setWallet(result.data.amount)
 }
-const navigate=useNavigate()
+
 const handlelogout=()=>{
   localStorage.clear()
-navigate('/')
+  navigate('/')
 }
+
+const links=[
+  { to:'/home', label:'Home', show:true },
+  { to:'/userallcourts', label:'Courts', show:user.role===1 },
+  { to:'/userBookings', label:'My Bookings', show:user.role===1 },
+  { to:'/mycourts', label:'My Courts', show:user.role===2 },
+  { to:'/registercourt', label:'Register Court', show:user.role===2 },
+].filter((link)=>link.show)
+
+const profileImage=imageurl ? imageUrl(imageurl) : defaultpic
+const fullName=`${user.firstName} ${user.lastName}`
+
   return (
-
-      
-
-
-      <Navbar expand="lg" style={{backgroundColor:'#0D4A42'}} >
+    <Navbar expand="lg" className='bmc-nav'>
       <Container>
-      
-        <Navbar.Brand href="#home"><img
-              src={logo}
-              width="130"
-              height="80"
-              className="d-inline-block align-top"
-              alt="logo"
-            /></Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" className='text-light bg-light' />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-          <Nav.Link href="/home" className='fw-bold text-light me-3'>Home</Nav.Link>
-            
-          {user.role===1 && <Nav.Link href="/userallcourts" className='me-3 text-light'>Courts</Nav.Link>}
-          {user.role===1&&<Nav.Link href="/userBookings" className='me-3 text-light'>My Bookings</Nav.Link>}
-          
-            {user.role===2&&<Nav.Link href="/mycourts" className='me-3 text-light'>My Courts</Nav.Link>}
-            {user.role===2&&<Nav.Link href="/registercourt" className='me-3 text-light'>Court Registration</Nav.Link>}
-            <Nav.Link href="#features" className='text-light'>Pricing</Nav.Link>
-           
-            <Nav.Link href="#features" className='text-light '>Support</Nav.Link>
-          <Nav.Link class="my-3" className='text-light' onClick={handlelogout}>Logout</Nav.Link>
-          <input type="text" className='border rounded-3 ms-3 px-2' onChange={(e)=>dispatch(setSearchText(e.target.value))}/>
+        <Navbar.Brand as={Link} to="/home">
+          <img src={logo} alt="bookmycourt" />
+        </Navbar.Brand>
+        <Navbar.Toggle aria-controls="bmc-navbar" />
+        <Navbar.Collapse id="bmc-navbar">
+          <Nav className="me-auto ms-lg-3 align-items-lg-center">
+            {links.map((link)=>(
+              <Nav.Link key={link.to} as={Link} to={link.to} className={`bmc-link${pathname===link.to?' active':''}`}>
+                {link.label}
+              </Nav.Link>
+            ))}
           </Nav>
-          <Nav.Link href="#" className='text-light me-3'><img  src= { imageurl ? `${ process.env.REACT_APP_BASE_URL}/uploads/${imageurl}`:`${defaultpic}`}  alt="profile image" style={{width:'40px', height:'40px',borderRadius:'50%'}}/></Nav.Link>
-          <NavDropdown onClick={getWallet} title={`${user.firstName} ${user.lastName}`} id="basic-nav-dropdown" className='text-light'> 
-         
- <div className='w-100'>
- <Dropdown.Item href="/uploadprofilepic">Change Profilepic</Dropdown.Item>
- 
- <Dropdown.Item href="#/action-1">{`${user.firstName} ${user.lastName}`}<FontAwesomeIcon icon={faPen} style={{color: "#0D4A42"}} className='ms-2'/></Dropdown.Item>
- 
-    <Dropdown.Item href="#/action-1">Email Id:</Dropdown.Item>
-    <Dropdown.Item href="#/action-1">Mobile Number:</Dropdown.Item>
-    <h5  className="mx-2">Wallet:{wallet}</h5>
-  
- 
 
-  <div class="d-flex">
-  
-  <Dropdown.Item href="#"><FontAwesomeIcon icon={faDribbble} style={{color: "#0D4A42"}} className=''/></Dropdown.Item>
-  <Dropdown.Item href="#"><FontAwesomeIcon icon={faTwitter} style={{color: "#0D4A42"}} className=''/></Dropdown.Item>
-  <Dropdown.Item href="#"><FontAwesomeIcon icon={faLinkedin} style={{color: "#0D4A42"}} className=''/></Dropdown.Item>
-  <Dropdown.Item href="#"><FontAwesomeIcon icon={faFacebook} style={{color: "#0D4A42"}} className=''/></Dropdown.Item>
-  </div>
-  <p></p>
+          {!['/home','/userallcourts','/mycourts'].includes(pathname) && (
+            <div className='bmc-search'>
+              <FontAwesomeIcon icon={faMagnifyingGlass}/>
+              <input type="text" placeholder="Search…" aria-label="Search" onChange={(e)=>dispatch(setSearchText(e.target.value))}/>
+            </div>
+          )}
 
- </div>
-  
- 
-
-            </NavDropdown> 
+          <Nav className='bmc-profile'>
+            <NavDropdown
+              align="end"
+              id="bmc-profile-dropdown"
+              onToggle={(open)=>open && getWallet()}
+              title={<><img src={profileImage} alt="profile"/><span>{fullName}</span></>}
+            >
+              <div className='bmc-profile-head'>
+                <strong>{fullName}</strong>
+                {user.email && <small>{user.email}</small>}
+              </div>
+              <div className='bmc-wallet'>
+                <span><FontAwesomeIcon icon={faWallet} className='me-2'/>Wallet</span>
+                <b>₹{wallet ?? '—'}</b>
+              </div>
+              <NavDropdown.Item as={Link} to="/uploadprofilepic"><FontAwesomeIcon icon={faImage}/> Change profile picture</NavDropdown.Item>
+              <NavDropdown.Divider/>
+              <NavDropdown.Item className='danger' onClick={handlelogout}><FontAwesomeIcon icon={faRightFromBracket}/> Log out</NavDropdown.Item>
+            </NavDropdown>
+          </Nav>
         </Navbar.Collapse>
-      
-        
       </Container>
     </Navbar>
-
-
-      
-     
-
-   
-    
-  
-
   )
 }
 

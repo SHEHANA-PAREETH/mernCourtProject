@@ -1,32 +1,55 @@
-import axios from 'axios';
-import React, { useEffect, useState} from 'react'
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import Swal from 'sweetalert2'
+import React, { useContext, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
 import { faEye,faEyeSlash,faCircleExclamation } from '@fortawesome/free-solid-svg-icons'
 import AxiosInstance from '../config/axiosinstance';
+import { ToastError, toastSuccess } from '../plugins/Toast';
+import { loginContext } from '../pages/Login';
 
+const nameRegex=/^[a-zA-Z ]+$/
+const emailRegex=/^([a-zA-Z0-9_.]+)@([a-zA-Z0-9-_]{3,20})\.([a-z]{2,6}?$)/
+const numberRegex=/^[0-9]{10}$/
+const passwordRegex=/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,15}$/
 
+const validate=(data)=>{
+  const errors={}
+  if(data.firstName.length===0) errors.firstName='First name cannot be empty'
+  else if(!nameRegex.test(data.firstName)) errors.firstName='Enter a valid name'
 
+  if(data.lastName.length===0) errors.lastName='Last name cannot be empty'
+  else if(!nameRegex.test(data.lastName)) errors.lastName='Enter a valid name'
 
+  if(data.email.length===0) errors.email='Email cannot be empty'
+  else if(!emailRegex.test(data.email)) errors.email='Enter a valid email'
 
+  if(data.number.length===0) errors.number='Number cannot be empty'
+  else if(!numberRegex.test(data.number)) errors.number='Enter a valid 10 digit number'
+
+  if(data.password1.length<8) errors.password1='Password must contain at least 8 characters'
+  else if(!passwordRegex.test(data.password1)) errors.password1='Use 8-15 characters with an uppercase letter, a lowercase letter, a number and a special character'
+
+  if(data.password1!==data.password2) errors.password2="Passwords don't match"
+  return errors
+}
+
+function Field({label,name,type='text',placeholder,value,onChange,error,children}){
+  return (
+    <div className='auth-field'>
+      <label htmlFor={`signup-${name}`}>{label}</label>
+      <div className='auth-input-wrap'>
+        <input id={`signup-${name}`} className={`auth-input${error?' has-error':''}${children?' has-toggle':''}`} type={type} placeholder={placeholder} name={name} value={value} onChange={onChange}/>
+        {children}
+      </div>
+      {error?<p className='auth-error'><FontAwesomeIcon icon={faCircleExclamation} style={{marginTop:'2px'}}/> {error}</p>:''}
+    </div>
+  )
+}
 
 function Signupform() {
 
-  
   const[eye,setEye]=useState(false)
-const [text,setText]=useState('')
-const [errors,setErrors]=useState({
-  firstName:'',
-  lastName:'',
-  email:'',
-  number:'',
-  password1:'',
-  password2:''
-
-})
+  const {setLogin}=useContext(loginContext)
+  const [submitting,setSubmitting]=useState(false)
+  const [errors,setErrors]=useState({})
   const [loginData,setLoginData]=useState ({
     firstName:'',
     lastName:'',
@@ -37,338 +60,61 @@ const [errors,setErrors]=useState({
     role:false
   })
 
-
-
   const handleInputChange=(e)=>{
    const {name,value}=e.target
-   setLoginData((prevFormData) => 
+   setLoginData((prevFormData) =>
    ({ ...prevFormData, [name]:value}))
-
-
+   if(errors[name]) setErrors((prev)=>({...prev,[name]:''}))
   }
 
-  
-    
   const handleSubmit= (e)=>{
     e.preventDefault()
-    validateFirstname()
-   validatelastname()
-   validateemail()
-   validatenumber()
-   validatepassword1()
-   validatepassword2()
-   if(validateFirstname()&&
-   validatelastname()&&
-   validateemail()&&
-   validatenumber()&&
-   validatepassword1()&&
-   validatepassword2()) {
+    const found=validate(loginData)
+    setErrors(found)
+    if(Object.keys(found).length>0) return
 
-
-  console.log('success');
-  console.log(loginData);
-  AxiosInstance.post("/auth/register",loginData).then((res)=>{ 
-  
-    console.log(res.data);
-    if(res.data.usercreated){
-      Swal.fire({  
-        title: 'Good job!',  
-        text: 'You created the account successfully.',
-        icon: 'success'
-      }).then(()=>{
-        
-       
-        window.location.href=('/')
-      })
-     
-    }
-    else{
-      if(res.data.msg === 'user exists'){
-        setText(' user exists')
-        setTimeout(()=>{
-          setText('')
-        },3000)
+    setSubmitting(true)
+    AxiosInstance.post("/auth/register",loginData).then((res)=>{
+      if(res.data.usercreated){
+        toastSuccess('Account created, please log in')
+        setLogin(true)
       }
-      else if(res.data.msg === 'email exists'){
-        setText(' email exists')
-        setTimeout(()=>{
-          setText('')
-        },3000)
-      }
-      else if(res.data.msg === 'number exists'){
-        setText(' number exists')
-        setTimeout(()=>{
-          setText('')
-        },3000)
-      }
-    
-      else{
-        setText('server issue')
-        setTimeout(()=>{
-          setText('')
-        },3000)
-      }
-    }
-    
-  })
-}
-
-   }
-
-    
-const validateFirstname=()=>{
-  if (loginData.firstName.length == 0) {
-    setErrors((prevData) => 
-    ({ ...prevData, firstName:'  First Name cannot be empty'}))
-    
-    setTimeout(()=>{
-      setErrors((prevData) => 
-      ({ ...prevData, firstName:''}))
-      
-    },3000)
-    return false
-    
-  }
-else{
-  let reg=/^[a-zA-Z ]+$/;
-  if(!reg.test(loginData.firstName)){
-    setErrors((prevData) => 
-    ({ ...prevData, firstName:'   enter a valid name'}))
-    
-    setTimeout(()=>{
-      setErrors((prevData) => 
-      ({ ...prevData, firstName:''}))
-      
-    },3000)
-    return false
-  }
-  else{
-    return true
-  }
-}
- 
-}
-const validatelastname=()=>{
-  if (loginData.lastName.length == 0) {
-      
-    setErrors((prevData) => 
-    ({ ...prevData, lastName:'   last Name cannot be empty'}))
-
-    setTimeout(()=>{
-      setErrors((prevData) => 
-      ({ ...prevData, lastName:''}))
-      
-    },3000)
-    return false
-    
-  }
-  else{
-    let reg=/^[a-zA-Z ]+$/;
-    if(!reg.test(loginData.lastName)){
-      setErrors((prevData) => 
-      ({ ...prevData, lastName:'    enter a valid name'}))
-      
-      setTimeout(()=>{
-        setErrors((prevData) => 
-        ({ ...prevData, lastName:''}))
-        
-      },3000)
-      return false
-    }
-    else{
-      return true
-    }
-  }
-}
-  const validateemail=()=>{
-    if (loginData.email.length == 0) {
-        
-      setErrors((prevData) => 
-      ({ ...prevData, email:'   email can not be empty'}))
-      setTimeout(()=>{
-        setErrors((prevData) => 
-        ({ ...prevData, email:''}))
-        
-      },3000)
-      
-    return false
-      
-    }
-    else{
-      let reg=/^([a-zA-Z0-9_\.]+)@([a-zA-Z0-9-_]{3,20})\.([a-z]{2,6}?$)/;
-      if(!reg.test(loginData.email)){
-        setErrors((prevData) => 
-        ({ ...prevData, email:'    enter a valid email'}))
-        
-        setTimeout(()=>{
-          setErrors((prevData) => 
-          ({ ...prevData, email:''}))
-          
-        },3000)
-        return false
-      }
-      else{
-        return true
-      }
-    }
-
-}
-const validatenumber=()=>{
-  if (loginData.number.length == 0) {
-      
-    setErrors((prevData) => 
-    ({ ...prevData, number:'  number can not be empty'}))
-
-    setTimeout(()=>{
-      setErrors((prevData) => 
-      ({ ...prevData, number:''}))
-      
-    },3000)
-    return false
-    
-  }
-  else{
-    let reg=/^[0-9]{10}$/;
-    if(!reg.test(loginData.number)){
-      setErrors((prevData) => 
-      ({ ...prevData, number:'  enter a valid number'}))
-      
-      setTimeout(()=>{
-        setErrors((prevData) => 
-        ({ ...prevData, number:''}))
-        
-      },3000)
-      return false
-    }
-    else{
-      return true
-    }
+      else if(res.data.msg === 'user exists') ToastError('User already exists')
+      else if(res.data.msg === 'email exists') ToastError('Email already exists')
+      else if(res.data.msg === 'number exists') ToastError('Number already exists')
+      else ToastError('Server issue, please try again')
+    }).catch(()=>{
+      ToastError('Could not reach the server, please try again')
+    }).finally(()=>{
+      setSubmitting(false)
+    })
   }
 
-
-}
-
-const validatepassword1=()=>{
-  if (loginData.password1.length < 8) {
-    setErrors((prevData) => 
-    ({ ...prevData, password1:'   Password must contain greater than or equal to 8 characters.'}))
-
-    setTimeout(()=>{
-      setErrors((prevData) => 
-      ({ ...prevData, password1:''}))
-      
-    },3000)
-    return false
-}
-else{
-  let reg=/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,15}$/;
-  if(!reg.test(loginData.password1)){
-    setErrors((prevData) => 
-    ({ ...prevData, password1:' Password must contain one Uppercase,one lowercase characters,one number and a special character'}))
-    
-    setTimeout(()=>{
-      setErrors((prevData) => 
-      ({ ...prevData, password1:''}))
-      
-    },3000)
-    return false
-  }
-  else{
-  return true
-  }
-}
-
-
-}
-const validatepassword2=()=>{
-  if (loginData.password1 !==loginData.password2) {
-    setErrors((prevData) => 
-    ({ ...prevData, password2:"   Passwords don't match."}))
-
-    setTimeout(()=>{
-      setErrors((prevData) => 
-      ({ ...prevData, password2:''}))
-      
-    },3000)
-    return false
-}
-else{
-  return true
-}
-
-}
-let passwordType;
- if(eye){
-  passwordType='text'
- }
- else{
- passwordType='password'
- }
-
- useEffect(()=>{
-console.log(loginData);
- },[loginData])
   return (
-
-
-  
-    <Form onSubmit ={handleSubmit} className='' > 
-      {text?<p className='text-danger'> <FontAwesomeIcon icon={faCircleExclamation}/>{text}</p>:''}
-      <div className='d-flex ' >
-      <div className='me-2 w-50 '>
-      <Form.Group className="mb-3 " >
-        <Form.Label className=''>First name</Form.Label>
-        <Form.Control type="text" placeholder="Enter firstname" name='firstName' value={loginData.firstName} onChange={(e)=>handleInputChange(e)}/>
-
-      </Form.Group>
-     
-      {errors.firstName?<p className='text-danger text-center '> <FontAwesomeIcon icon={faCircleExclamation}/>{errors.firstName}</p>:''}
-      <Form.Group className="mb-3" >
-        <Form.Label className=''>Last name</Form.Label>
-        <Form.Control type="text" placeholder="Enter lastname" name='lastName' value={loginData.lastName} onChange={(e)=>handleInputChange(e)}/>
-      </Form.Group>
-      {errors.lastName?<p className='text-danger text-center'> <FontAwesomeIcon icon={faCircleExclamation}/>{errors.lastName}</p>:''}
-      <Form.Group className="mb-3" controlId="formBasicEmail">
-        <Form.Label className=''>Email</Form.Label>
-        <Form.Control type="text" placeholder="Enter email"  name='email' value={loginData.email} onChange={(e)=>handleInputChange(e)} />
-      </Form.Group>
-      {errors.email?<p className='text-danger text-center'> <FontAwesomeIcon icon={faCircleExclamation}/>{errors.email}</p>:''}
-        </div>
-        <div className=' w-50 position-relative'>
-        
-      <Form.Group className="mb-3" >
-        <Form.Label className=''>Mobile </Form.Label>
-        <Form.Control type="number" placeholder="Enter number" name='number' value={loginData.number} onChange={(e)=>handleInputChange(e)}/>
-      </Form.Group>
-      {errors.number?<p className='text-danger text-center'> <FontAwesomeIcon icon={faCircleExclamation}/>{errors.number}</p>:''}
-        
-      
-      <Form.Group className="mb-3" controlId="formBasicPassword">
-        <Form.Label className=''> Password</Form.Label>
-        <Form.Control type={passwordType} placeholder="Password" name='password1' value={loginData.password1} onChange={(e)=>handleInputChange(e)} />
-
-      {eye?<FontAwesomeIcon className='position-absolute top-50 start-100 translate-middle' style={{marginLeft:'-30px',marginTop:'6px'}} icon={faEyeSlash} onClick={()=>setEye(false)}/>:<FontAwesomeIcon className='position-absolute top-50 start-100 translate-middle' style={{marginLeft:'-30px',marginTop:'6px'}} icon={faEye} onClick={()=>setEye(true)}/>}
-      </Form.Group>
-      {errors.password1?<p className='text-danger text-center'> <FontAwesomeIcon icon={faCircleExclamation}/>{errors.password1}</p>:''}
-      <Form.Group className="mb-3" controlId="formBasicPassword">
-        <Form.Label className=''>Confirm Password</Form.Label>
-        <Form.Control type="password" placeholder="Password" name='password2' value={loginData.password2} onChange={(e)=>handleInputChange(e)} />
-      </Form.Group>
-
-      
-      {errors.password2?<p className='text-danger text-center'> <FontAwesomeIcon icon={faCircleExclamation}/>{errors.password2}</p>:''}
+    <form onSubmit={handleSubmit} noValidate>
+      <div className='auth-grid'>
+        <Field label='First name' name='firstName' placeholder='John' value={loginData.firstName} onChange={handleInputChange} error={errors.firstName}/>
+        <Field label='Last name' name='lastName' placeholder='Doe' value={loginData.lastName} onChange={handleInputChange} error={errors.lastName}/>
+        <Field label='Email' name='email' type='email' placeholder='you@example.com' value={loginData.email} onChange={handleInputChange} error={errors.email}/>
+        <Field label='Mobile' name='number' type='tel' placeholder='10 digit number' value={loginData.number} onChange={handleInputChange} error={errors.number}/>
+        <Field label='Password' name='password1' type={eye?'text':'password'} placeholder='Create a password' value={loginData.password1} onChange={handleInputChange} error={errors.password1}>
+          <button type='button' className='auth-eye' aria-label={eye?'Hide password':'Show password'} onClick={()=>setEye(!eye)}>
+            <FontAwesomeIcon icon={eye?faEyeSlash:faEye}/>
+          </button>
+        </Field>
+        <Field label='Confirm password' name='password2' type={eye?'text':'password'} placeholder='Repeat your password' value={loginData.password2} onChange={handleInputChange} error={errors.password2}/>
       </div>
-      </div>
-      <Form.Group className="mb-3" controlId="formBasicCheckbox">
-        <Form.Check type="checkbox" label="sign up as vendor" onClick={()=>setLoginData({...loginData,role:!loginData.role})}/>
-      </Form.Group>
-      <Button variant=" w-25 mb-3 " className='mx-auto' type="submit" style={{backgroundColor:'#0D4A42'}}>
-        Sign up
-      </Button>
-      
-    </Form>
+
+      <label className='auth-check'>
+        <input type='checkbox' checked={loginData.role} onChange={()=>setLoginData({...loginData,role:!loginData.role})}/>
+        Sign up as a vendor (I want to list my courts)
+      </label>
+
+      <button className='auth-btn' type='submit' disabled={submitting}>
+        {submitting?'Creating account…':'Create account'}
+      </button>
+    </form>
   )
-  
-  }
+}
 
 export default Signupform

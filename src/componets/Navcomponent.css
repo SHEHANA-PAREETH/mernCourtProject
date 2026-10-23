@@ -1,0 +1,205 @@
+.bmc-nav {
+  --brand: #0d4a42;
+  --brand-dark: #08332d;
+  --accent: #f59e0b;
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  padding: 10px 0;
+  background: rgba(8, 51, 45, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.bmc-nav .navbar-brand img {
+  height: 46px;
+  width: auto;
+  object-fit: contain;
+}
+
+.bmc-nav .navbar-toggler {
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  padding: 6px 10px;
+}
+
+.bmc-nav .navbar-toggler:focus {
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.4);
+}
+
+.bmc-nav .navbar-toggler-icon {
+  filter: invert(1);
+}
+
+.bmc-nav .nav-link.bmc-link {
+  position: relative;
+  padding: 8px 14px;
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.93rem;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+}
+
+.bmc-nav .nav-link.bmc-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.bmc-nav .nav-link.bmc-link.active {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-weight: 600;
+}
+
+.bmc-search {
+  position: relative;
+  margin: 0 12px;
+}
+
+.bmc-search svg {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+.bmc-search input {
+  width: 220px;
+  height: 38px;
+  padding: 0 14px 0 36px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 0.9rem;
+  transition: background 0.15s, border-color 0.15s, width 0.2s;
+}
+
+.bmc-search input::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.bmc-search input:focus {
+  outline: none;
+  width: 260px;
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* ---------- profile dropdown ---------- */
+.bmc-profile .dropdown-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px 4px 4px;
+  border-radius: 999px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.bmc-profile .dropdown-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.bmc-profile .dropdown-toggle img {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent);
+  background: #fff;
+}
+
+.bmc-profile .dropdown-menu {
+  min-width: 260px;
+  margin-top: 10px;
+  padding: 8px;
+  border: 1px solid #e3ebe9;
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(8, 51, 45, 0.18);
+}
+
+.bmc-profile .dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: #0f1f1c;
+  font-size: 0.92rem;
+}
+
+.bmc-profile .dropdown-item:hover {
+  background: #e6f1ef;
+  color: var(--brand);
+}
+
+.bmc-profile .dropdown-item.danger {
+  color: #d92d20;
+}
+
+.bmc-profile .dropdown-item.danger:hover {
+  background: #fef3f2;
+  color: #d92d20;
+}
+
+.bmc-profile-head {
+  padding: 10px 12px 12px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid #eef2f1;
+}
+
+.bmc-profile-head strong {
+  display: block;
+  color: #0f1f1c;
+}
+
+.bmc-profile-head small {
+  color: #6b7a77;
+  word-break: break-all;
+}
+
+.bmc-wallet {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 6px 4px 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #e6f1ef;
+  color: var(--brand);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.bmc-wallet b {
+  font-size: 1.05rem;
+}
+
+@media (max-width: 991px) {
+  .bmc-nav .navbar-collapse {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .bmc-search {
+    margin: 10px 0;
+  }
+
+  .bmc-search input,
+  .bmc-search input:focus {
+    width: 100%;
+  }
+
+  .bmc-profile {
+    margin-top: 8px;
+  }
+}

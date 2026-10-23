@@ -13,6 +13,7 @@ import SinglecardDetails from './pages/SinglecardDetails';
 import UserAllCourts from './pages/UserAllCourts';
 import SINglecourtUserDetails from './pages/SINglecourtUserDetails';
 import Loader from './componets/Loader';
+import NotFound from './pages/NotFound';
 import { Suspense } from 'react';
 import { VendorAuthorization ,LoginPageAuth, UserAuthorization, HomeAuthorization, AdminAuthorization, AdminLoginPageAuth} from './authorization/Authorization';
 import Toast from './componets/Toast';
@@ -69,9 +70,7 @@ function App() {
 <Route path="/userdetailsforadmin" element={<UserData/>}/>
 <Route path="/vendordetails" element={<VendorData/>}/>
        </Route>
-  
-       
-     
+<Route path='*' element={<NotFound/>}/>
    </Routes>
   </BrowserRouter>
       </>

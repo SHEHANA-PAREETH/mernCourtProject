@@ -1,70 +1,41 @@
+import React from 'react'
+import Modal from 'react-modal'
 
-import React, { useEffect, useState } from 'react';
-import { Button } from 'react-bootstrap';
+const fmtDate=(value)=>new Date(value).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric',timeZone:'UTC'})
+const fmtDateTime=(value)=>new Date(value).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})
 
-import Modal from 'react-modal';
-function SingleSlotDetailsModal({showSlotData}) {
-    
-    useEffect(()=>{
-        openModal()
-    },[showSlotData])
-    const customStyles = {
-        content: {
-          top: '50%',
-          left: '50%',
-          right: 'auto',
-          bottom: 'auto',
-          marginRight: '-50%',
-          transform: 'translate(-50%, -50%)',
-          padding:'50px',
-         
-        },
-      };
-     
-      const[alreadyBooked,setAlreadyBooked]=useState()
-  const [modalIsOpen, setIsOpen] = React.useState(false);
-  function openModal() {
-   
-    console.log(showSlotData);
-    if(showSlotData[0].users){
-        setAlreadyBooked(true)
-    }
-    else{
-        setAlreadyBooked(false)
-    }
-    setIsOpen(true);
-  }
- 
-  
+// shows who booked a slot (or that it is still free)
+function SingleSlotDetailsModal({slotData, onClose}) {
+  const slot=slotData[0]
+  const booked=Boolean(slot?.users)
+  const payment=slot?.paymentOrders?.[0]
 
-  function closeModal() {
-    setIsOpen(false);
-  }
   return (
-
-    <div>
-      
-      <Modal
-        isOpen={modalIsOpen}
-       
-        onRequestClose={closeModal}
-        style={customStyles}
-        contentLabel="Example Modal"
-      >
-        
-        <Button className='btn-success' onClick={closeModal}>close</Button>
-        <div>
-            {alreadyBooked?<h6>Slot booked</h6>:<h6>Slot is not booked yet</h6>}
-           {alreadyBooked?<div><h5 className='text-uppercase'>Booked By:{showSlotData[0]?.users?.firstName+' '+showSlotData[0]?.users?.lastName}</h5>
-            <h6 className='p-2'>Booked on:{showSlotData[0]?.paymentOrders[0]?.timeStamp.split('T')[0]}, at : {showSlotData[0]?.paymentOrders[0]?.timeStamp.split('T')[1].split('.')[0]}</h6>
-        Payment Mode:{showSlotData[0]?.paymentOrders[0]?.razorpayPaymentId?<h6>Razor Pay</h6>:<h6>Wallet</h6>}
-        <h6>Amount:{showSlotData[0].cost}</h6>
-                </div> :''} 
-        </div>
-       
-      </Modal>
-    </div>
-  );
+    <Modal isOpen onRequestClose={onClose} className='vc-modal' overlayClassName='vc-overlay' ariaHideApp={false} contentLabel='Slot details' style={{content:{maxWidth:460}}}>
+      <div className='vc-modal-head'>
+        <h3>Slot details</h3>
+        <p>{slot ? `${slot.slot.name} · ${fmtDate(slot.date)}` : ''}</p>
+      </div>
+      <div className='vc-modal-body'>
+        <span className={`vc-status ${booked?'booked':'free'}`}>{booked?'Booked':'Not booked yet'}</span>
+        <dl className='vc-detail'>
+          <div><dt>Price</dt><dd>₹{slot?.cost}</dd></div>
+          {booked && (
+            <>
+              <div><dt>Booked by</dt><dd>{slot.users.firstName} {slot.users.lastName}</dd></div>
+              {slot.users.email && <div><dt>Email</dt><dd>{slot.users.email}</dd></div>}
+              {slot.users.number && <div><dt>Mobile</dt><dd>{slot.users.number}</dd></div>}
+              {payment?.timeStamp && <div><dt>Booked on</dt><dd>{fmtDateTime(payment.timeStamp)}</dd></div>}
+              {payment && <div><dt>Payment</dt><dd>{payment.razorpayPaymentId ? 'Razorpay' : 'Wallet'}</dd></div>}
+            </>
+          )}
+        </dl>
+      </div>
+      <div className='vc-modal-foot'>
+        <button className='vc-btn' onClick={onClose}>Close</button>
+      </div>
+    </Modal>
+  )
 }
 
 export default SingleSlotDetailsModal

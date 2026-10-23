@@ -1,135 +1,54 @@
+import React, { useState } from 'react'
+import Modal from 'react-modal'
+import AxiosInstance from '../config/axiosinstance'
+import { ToastError, toastSuccess } from '../plugins/Toast'
+import SlotPicker from './SlotPicker'
 
-import React, { useEffect, useState } from 'react';
-import {Button, Form} from 'react-bootstrap'
-import { TIMINGS } from '../Constants/timings';
+// "Add slots": adds more time slots to one date that already has a schedule
+function AddSlotModal({date, existingSlots, courtId, onClose, onDone}) {
+  const [cost,setCost]=useState(existingSlots[0]?.cost ? String(existingSlots[0].cost) : '')
+  const [slots,setSlots]=useState([])
+  const [saving,setSaving]=useState(false)
+  const existingIds=existingSlots.map((item)=>item.slot.id)
 
-import AxiosInstance from '../config/axiosinstance';
-import { ToastError, toastSuccess } from '../plugins/Toast';
-function AddSlotModal({includedSlots,setAddshedulesModal}){
-  const [timings,setTimings]=useState(TIMINGS)
-  const [newslotstoAdd,setNewSlots]=useState([])
-const [pushedSlots,setPushedSlots]=useState([])
-const [onlyslots,setOnlySlots]=useState([])
-const [data,setdatas]=useState({
-  date: includedSlots[0],
-  cost:'',
+  const submit=(e)=>{
+    e.preventDefault()
+    if(!(Number(cost)>0)) return ToastError('Enter the price per slot')
+    if(slots.length===0) return ToastError('Select at least one time slot')
 
-  courtId:includedSlots[1][0].courtId
-})
-useEffect(()=>{
-console.log(data);
-},[data])
-useEffect(()=>{
-  console.log(includedSlots);
-  console.log(includedSlots[1]);
-  let allslots=[...timings]
-  const resultArray=[]
-  for(let i=0;i< includedSlots[1].length;i++){
-    const newElement = includedSlots[1][i].slot
-resultArray.push(newElement)
+    setSaving(true)
+    AxiosInstance.post('vendor/addslotsopreviousslots',{
+      data:{ date, cost:Number(cost), courtId },
+      pushedSlots:slots,
+    }).then((resp)=>{
+      if(resp.data.msg==='shedules added successfully'){
+        toastSuccess('Slots added successfully')
+        onDone()
+      }
+    }).catch(()=>ToastError('Could not add the slots')).finally(()=>setSaving(false))
   }
-  
-  console.log(resultArray);//only slot name and id
- const newArray=allslots.filter(obj => ! resultArray.some(removeObj => obj.id === removeObj.id && obj.name === removeObj.name))
- 
-  console.log(newArray);
-setNewSlots(newArray)
 
-//console.log(newslotstoAdd);
-},[includedSlots])
-
-
-
-
-
-
-
-const pushSlots=(obj)=>{
-  
- setPushedSlots((prevArray)=>
-  [...prevArray,obj])
-  
-  console.log(pushedSlots);
-let allslots=[...newslotstoAdd]
-allslots.forEach((element,index)=>{
-  if(element=== obj){
-allslots.splice(index,1)
-  }
-})
-setNewSlots(allslots)
-}
-
-const removeSlots=(element)=>{
-
-setNewSlots((prevArray)=>
-  [...prevArray,element])
-  let allslots=[...pushedSlots]
-  allslots.forEach((elementslot,index)=>{
-    if(elementslot=== element){
-  allslots.splice(index,1)
-    }
-  })
-  setPushedSlots(allslots)
-  
-}
-
-const handleSubmit= (e)=>{
-  e.preventDefault()
-if(data.length === 0 || pushedSlots.length === 0){
-  //alert('fields cannot be empty')
-  ToastError('fields cannot be empty')
-}
-else{
-  console.log(data);
-  AxiosInstance.post('vendor/addslotsopreviousslots',{data,pushedSlots}).then((resp)=>{
-    console.log(resp);
-    if(resp.data.msg === "shedules added successfully"){
-      toastSuccess('shedules added suceessfuly')
-      setTimeout(()=>{
-        window.location.reload()
-      },1000)
-     
-    }
-  })
-}
-
-}
-
-  return(
-<Form className='my-5 w-50 me-5 pe-3' onSubmit={handleSubmit}>
-  <h3 className='text-center my-5'>Add Timings</h3>
-          <Form.Group className="mb-3" >
-        
-       <h6 className='border border-2 p-2 rounded'>{includedSlots[0].split('T')[0]}</h6>
-      </Form.Group>
-      
-      <Form.Group className="mb-3" >
-        <Form.Label className=''>Cost</Form.Label>
-        <Form.Control type="number" placeholder="Enter cost" name='cost' value={data.cost} onChange={(e)=>setdatas({...data,cost:e.target.value})} />
-      </Form.Group>
-      <h3>Selected Slots</h3>
-      <ul className='d-flex flex-row w-100 flex-wrap bg-light p-4 border-none' style={{minHeight:'70px'}} >
- 
-{pushedSlots?.map((obj)=>
-     <li className='text-light bg-dark p-1  border border-2 rounded' style={{textDecoration:"none",listStyleType:'none',width:'120px',cursor:'pointer'}} onClick={()=>removeSlots(obj)} >{obj.name}</li>
-     )}
-</ul>
-      <h3>Available Slots</h3>
-<ul className='d-flex flex-row justify-content-center w-100 flex-wrap bg-light p-4' style={{minHeight:'70px'}} >
- 
-{newslotstoAdd?.map((obj)=>
-     <li className='text-light bg-dark p-1  border border-2 rounded' style={{textDecoration:"none",listStyleType:'none',width:'120px',cursor:'pointer'}} onClick={()=>pushSlots(obj)}>{obj.name}</li>
-     )}
-</ul>
-    
-    <div className='d-flex justify-content-between'>
-    <Button type='submit' className='btn-success'>OK</Button>
-      <Button className='btn-success' onClick={()=>setAddshedulesModal(false)}>close</Button>
-    </div>
-      
-      </Form>
+  return (
+    <Modal isOpen onRequestClose={onClose} className='vc-modal' overlayClassName='vc-overlay' ariaHideApp={false} contentLabel='Add slots'>
+      <form onSubmit={submit} style={{display:'flex',flexDirection:'column',minHeight:0}} noValidate>
+        <div className='vc-modal-head'>
+          <h3>Add slots</h3>
+          <p>{new Date(date).toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'})}</p>
+        </div>
+        <div className='vc-modal-body'>
+          <div className='vc-field'>
+            <label htmlFor='as-cost'>Price per slot (₹)</label>
+            <input id='as-cost' className='vc-input' type='number' min='1' placeholder='e.g. 800' value={cost} onChange={(e)=>setCost(e.target.value)}/>
+          </div>
+          <SlotPicker selected={slots} onChange={setSlots} disabledIds={existingIds}/>
+        </div>
+        <div className='vc-modal-foot'>
+          <button type='button' className='vc-btn ghost' onClick={onClose}>Cancel</button>
+          <button type='submit' className='vc-btn' disabled={saving}>{saving?'Saving…':'Add slots'}</button>
+        </div>
+      </form>
+    </Modal>
   )
-  
 }
 
 export default AddSlotModal

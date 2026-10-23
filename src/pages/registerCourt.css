@@ -1,27 +1,225 @@
+.rc-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 28px;
+  align-items: start;
+  margin: -34px 0 60px;
+  position: relative;
+  z-index: 2;
+}
 
-    /*backgroundImage:`url(${image})`,
-     
-}*/
+.rc-card {
+  padding: 30px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 18px 44px rgba(8, 51, 45, 0.1);
+}
 
-.registerpage {
-    
-    display: block;
-    position: relative;
+.rc-card h2 {
+  margin: 0 0 4px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.rc-card .sub {
+  margin: 0 0 24px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.rc-field {
+  margin-bottom: 20px;
+}
+
+.rc-field label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 7px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.rc-field label small {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.rc-input {
+  width: 100%;
+  padding: 0 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.95rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+input.rc-input {
+  height: 46px;
+}
+
+textarea.rc-input {
+  min-height: 130px;
+  padding: 12px 14px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.rc-input:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 4px rgba(13, 74, 66, 0.12);
+}
+
+.rc-drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 34px 20px;
+  border: 2px dashed #b9cdc8;
+  border-radius: 16px;
+  background: #f8fbfa;
+  color: var(--muted);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.rc-drop:hover,
+.rc-drop.over {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+}
+
+.rc-drop .icon {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-size: 1.3rem;
+}
+
+.rc-drop strong {
+  color: var(--ink);
+}
+
+.rc-drop input {
+  display: none;
+}
+
+.rc-previews {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.rc-preview {
+  position: relative;
+  height: 100px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #e6f1ef;
+}
+
+.rc-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rc-preview .cover {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #1b1304;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.rc-preview button {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(8, 25, 22, 0.75);
+  color: #fff;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.rc-preview button:hover {
+  background: #b42318;
+}
+
+.rc-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.rc-actions .courts-btn {
+  flex: 1;
+  justify-content: center;
+}
+
+.rc-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 46px;
+  padding: 0 22px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.rc-ghost:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.rc-tips {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rc-tips li {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.rc-tips svg {
+  margin-top: 3px;
+  color: var(--brand);
+}
+
+@media (max-width: 900px) {
+  .rc-grid {
+    grid-template-columns: 1fr;
   }
-  
-  .registerpage::after {
-    content: "";
-    background-image: url('./images/pic.png');
-    width:20vw;
-   
-    opacity: 0.2;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    position: absolute;
-    z-index: -1; 
-    background-size: cover;
-    background-position:top;
-    background-repeat: no-repeat;  
-  }
+}

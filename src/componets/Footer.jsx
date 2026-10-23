@@ -1,39 +1,49 @@
 import React from 'react'
-import { Container, Row ,Col} from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import './Footer.css'
+import { faFacebookF, faTwitter, faInstagram, faLinkedinIn } from "@fortawesome/free-brands-svg-icons";
 
-import { faTwitterSquare, faFacebook, faLinkedin, faInstagram} from "@fortawesome/free-brands-svg-icons";
 function Footer() {
   return (
-    <Container className=' section6'>
-       <Row className=''>
-        <Col className=' my-5 footer d-flex flex-column justify-content-center align-items-center' sm={12} md={6}  >
-        <ul className='listcontainer' >
-            <li className="lists" href="">Blog</li>
-            <li className="lists" href="">About Us</li>
-            <li className="lists" href="">Terms of Use</li>
-            <li className="lists"href="">Privacy Policy</li>
-            <li className="lists" href="">Developers</li>
-            <li className="lists" href="">Contact</li>
-            <li className="lists" href="">
-Affiliates & Resellers</li>
-        </ul>
-        </Col >
-        <Col  sm={12} md={6} className='d-flex justify-content-center align-items-center'>
-        <div className='d-flex justify-content-center align-items-center'>
-        <FontAwesomeIcon icon={faFacebook} className='fs-2 me-5 ' style={{color:'#3A5998'}}/>
-        <FontAwesomeIcon icon={faTwitterSquare} className='fs-2  me-5' style={{color:'#1FAEEB'}}/>
-        <FontAwesomeIcon icon={faInstagram} className='fs-2  me-5' style={{color:'#7305B0'}}/>
-        <FontAwesomeIcon icon={faLinkedin} className='fs-2 ' style={{color:'#FA9B39'}}/>
+    <footer className='site-footer'>
+      <div className='home-wrap'>
+        <div className='footer-grid'>
+          <div className='footer-brand'>
+            <strong>bookmycourt</strong>
+            <p>Court booking in your hand. Find, book and play, anytime.</p>
+            <div className='footer-social'>
+              <a href='#facebook' aria-label='Facebook'><FontAwesomeIcon icon={faFacebookF}/></a>
+              <a href='#twitter' aria-label='Twitter'><FontAwesomeIcon icon={faTwitter}/></a>
+              <a href='#instagram' aria-label='Instagram'><FontAwesomeIcon icon={faInstagram}/></a>
+              <a href='#linkedin' aria-label='LinkedIn'><FontAwesomeIcon icon={faLinkedinIn}/></a>
+            </div>
+          </div>
+          <div>
+            <h4>Company</h4>
+            <ul>
+              <li><a href='#about'>About us</a></li>
+              <li><a href='#blog'>Blog</a></li>
+              <li><a href='#contact'>Contact</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Product</h4>
+            <ul>
+              <li><a href='/userallcourts'>Browse courts</a></li>
+              <li><a href='/registercourt'>List your court</a></li>
+              <li><a href='#developers'>Developers</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Legal</h4>
+            <ul>
+              <li><a href='#terms'>Terms of use</a></li>
+              <li><a href='#privacy'>Privacy policy</a></li>
+            </ul>
+          </div>
         </div>
-        
-        </Col>
-        
-    </Row> 
-    </Container>
-    
-
+        <div className='footer-bottom'>© {new Date().getFullYear()} bookmycourt. All rights reserved.</div>
+      </div>
+    </footer>
   )
 }
 

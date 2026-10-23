@@ -1,174 +1,150 @@
-import React, { useEffect, useState } from 'react'
-import {FloatingLabel,Button,Form,Container} from 'react-bootstrap'
-import './registerCourt.css'
-import Swal from 'sweetalert2'
-
-import {useNavigate} from 'react-router-dom'
+import React, { useEffect, useRef, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import AxiosInstance from '../config/axiosinstance'
 import Navcomponent from '../componets/Navcomponent'
-import { ToastError } from '../plugins/Toast'
+import { ToastError, toastSuccess } from '../plugins/Toast'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCloudArrowUp, faXmark, faCircleCheck } from '@fortawesome/free-solid-svg-icons'
+import './courts.css'
+import './registerCourt.css'
+
+const MAX_IMAGES=5// the backend accepts at most 5 images per court
+const MAX_DESCRIPTION=500
+
 function RegisterCourt() {
-  const [selectedImages, setSelectedImages] = useState([]);
-  const[files,setFile]=useState([])
-const navigate=useNavigate()
-  const [courtData,setCourtData]=useState({
-    name:'',
-  location:'',
-    description:'',
-   
-  })
-    const onSelectFile = (event) => {
-  
-      const selectedFiles = event.target.files;
-  
-      const selectedFilesArray = Array.from(selectedFiles);
-  setFile(selectedFilesArray)
-      const imagesArray = selectedFilesArray.map((file) => {
-        return URL.createObjectURL(file);
-      });
-  
-      setSelectedImages((previousImages) => previousImages.concat(imagesArray));
-  
-      // FOR BUG IN CHROME
-      event.target.value = "";
-    };
-  
-    function deleteHandler(image) {
-      setSelectedImages(selectedImages.filter((e) => e !== image));
-      URL.revokeObjectURL(image);
-    }
-    const handleInputChange=(e)=>{
-      const {name,value}=e.target
-      setCourtData((prevFormData) => 
-      ({ ...prevFormData, [name]:value}))
-     }
+  const navigate=useNavigate()
+  const inputRef=useRef(null)
+  const [images,setImages]=useState([])// [{file,url}]
+  const [dragging,setDragging]=useState(false)
+  const [saving,setSaving]=useState(false)
+  const [courtData,setCourtData]=useState({ name:'', location:'', description:'' })
 
-    
-     
-const handleSubmit= async (e)=>{
-      
-  e.preventDefault()
-    
-   const formData = new FormData()
-   for (let i = 0; i < files.length; i++) {
-    formData.append("images", files[i]);
+  // free the preview urls when leaving the page
+  useEffect(()=>()=>images.forEach((image)=>URL.revokeObjectURL(image.url)),[]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const addFiles=(fileList)=>{
+    const valid=Array.from(fileList).filter((file)=>['image/png','image/jpeg','image/webp'].includes(file.type))
+    if(valid.length<fileList.length) ToastError('Only PNG, JPG and WEBP images are allowed')
+    const room=MAX_IMAGES-images.length
+    if(valid.length>room) ToastError(`You can add up to ${MAX_IMAGES} images`)
+    setImages((current)=>[...current,...valid.slice(0,room).map((file)=>({file,url:URL.createObjectURL(file)}))])
   }
-    
-  for ( var key in courtData ) {
-    formData.append(key, courtData[key]);
-}
-    function hasEmptyValue(obj){
-      return Object.values(obj).some(value=> value === "")
+
+  const removeImage=(image)=>{
+    URL.revokeObjectURL(image.url)
+    setImages((current)=>current.filter((item)=>item!==image))
+  }
+
+  const handleInputChange=(e)=>{
+    const {name,value}=e.target
+    setCourtData((previous)=>({ ...previous, [name]:value }))
+  }
+
+  const handleSubmit=async (e)=>{
+    e.preventDefault()
+    if(images.length===0 || Object.values(courtData).some((value)=>value.trim()==='')){
+      ToastError('Please fill in every field and add at least one photo')
+      return
     }
+    const formData=new FormData()
+    images.forEach((image)=>formData.append('images',image.file))
+    Object.entries(courtData).forEach(([key,value])=>formData.append(key,value.trim()))
 
-if(files.length === 0 || hasEmptyValue(courtData)){
-  ToastError('fields cannot be empty')
-}
-else{
-  const result = await AxiosInstance.post('/vendor/newcourtregistration', formData,
-  { headers: {'Content-Type': 'multipart/form-data'}})
- console.log(result.data)
- if(result?.data?.courtregister){
-
-   Swal.fire({  
-      
-     text: 'Register successfully.',
-     icon: 'success'
-   }).then(
-    // window.location.reload()
-    
-    navigate('/mycourts')
-   )
- }
- else{
-   Swal.fire({  
-      
-     text: 'something went wrong ',
-   
-   })
- } 
-}
-  
+    setSaving(true)
+    try{
+      const result=await AxiosInstance.post('/vendor/newcourtregistration',formData,{ headers:{'Content-Type':'multipart/form-data'} })
+      if(result?.data?.courtregister){
+        toastSuccess('Court registered successfully')
+        navigate('/mycourts')
+      }
+      else{
+        ToastError('Something went wrong, please try again')
+      }
     }
-
-
+    catch(error){
+      ToastError('Could not register the court, please try again')
+    }
+    finally{
+      setSaving(false)
+    }
+  }
 
   return (
-<>
-<Navcomponent/>
-<Container fluid className='registerpage' style={{ height:'633px'}}>
-      
-        <Form onSubmit={handleSubmit} className='w-75 mx-auto my-5 p-5
-         shadow-lg' style={{ border:'1px solid grey'}} > 
-   <Form.Group className="mb-3 " >
-     <Form.Label className=''>Court name</Form.Label>
-     <Form.Control type="text" placeholder="name" name='name' value={courtData.name} onChange={(e)=>handleInputChange(e)} />
+    <div className='courts-page'>
+      <Navcomponent/>
+      <section className='courts-hero' style={{paddingBottom:90}}>
+        <div className='courts-wrap'>
+          <h1>Register a new court</h1>
+          <p>Add the details and photos players will see, then set up bookable slots from My Courts.</p>
+        </div>
+      </section>
 
-   </Form.Group>
-   <Form.Group className="mb-3 " >
-     <Form.Label className=''>Location</Form.Label>
-     <Form.Control type="text" placeholder="" name='location' value={courtData.location} onChange={(e)=>handleInputChange(e)} />
+      <div className='courts-wrap'>
+        <form className='rc-grid' onSubmit={handleSubmit} noValidate>
+          <div className='rc-card'>
+            <h2>Court details</h2>
+            <p className='sub'>Tell players what makes your court worth booking.</p>
 
-   </Form.Group>
-   
-   
-   
-   <FloatingLabel
-        controlId="floatingTextarea"
-        label="Description"
-        className="mb-3"
-      >
-      <Form.Control name="description" placeholder="Leave a comment here" value={courtData.description} onChange={(e)=>handleInputChange(e)} />
-      </FloatingLabel>
-   
-      <Form.Group>
-     
-        <Form.Control
-          type="file"
-          name="images"
-          onChange={onSelectFile}
-          
-          multiple
-          accept="image/png , image/jpeg, image/webp" className="my-3"
-        />
-     
-    </Form.Group>
+            <div className='rc-field'>
+              <label htmlFor='rc-name'>Court name</label>
+              <input id='rc-name' className='rc-input' type='text' name='name' placeholder='e.g. Downtown Arena Football Turf' value={courtData.name} onChange={handleInputChange}/>
+            </div>
+            <div className='rc-field'>
+              <label htmlFor='rc-location'>Location</label>
+              <input id='rc-location' className='rc-input' type='text' name='location' placeholder='e.g. Kochi, Kerala' value={courtData.location} onChange={handleInputChange}/>
+            </div>
+            <div className='rc-field'>
+              <label htmlFor='rc-description'>Description <small>{courtData.description.length}/{MAX_DESCRIPTION}</small></label>
+              <textarea id='rc-description' className='rc-input' name='description' maxLength={MAX_DESCRIPTION} placeholder='Surface, floodlights, changing rooms, parking, rules…' value={courtData.description} onChange={handleInputChange}/>
+            </div>
+          </div>
 
-    <Form.Group>
-    {selectedImages.length > 0 &&
-        (selectedImages.length > 10 ? (
-          <p className="error">
-            You can't upload more than 10 images! <br />
-            <span>
-              please delete <b> {selectedImages.length - 10} </b> of them{" "}
-            </span>
-          </p>
-        ) :'')}
+          <div>
+            <div className='rc-card' style={{marginBottom:24}}>
+              <h2>Photos</h2>
+              <p className='sub'>Add up to {MAX_IMAGES} photos. The first one is the cover image.</p>
 
-      <div className="d-flex">
-        {selectedImages &&
-          selectedImages.map((image, index) => {
-            return (
-              <div key={image} className="me-2">
-                <img src={image} height="100" width="150px" alt="upload" /><br/>
-                <button onClick={() => deleteHandler(image)} className="btn btn-dark mt-2">
-                  delete image
-                </button>
-                
+              <label
+                className={`rc-drop${dragging?' over':''}`}
+                onDragOver={(e)=>{e.preventDefault();setDragging(true)}}
+                onDragLeave={()=>setDragging(false)}
+                onDrop={(e)=>{e.preventDefault();setDragging(false);addFiles(e.dataTransfer.files)}}
+              >
+                <span className='icon'><FontAwesomeIcon icon={faCloudArrowUp}/></span>
+                <span><strong>Click to upload</strong> or drag and drop</span>
+                <small>PNG, JPG or WEBP · {images.length}/{MAX_IMAGES} added</small>
+                <input ref={inputRef} type='file' accept='image/png, image/jpeg, image/webp' multiple disabled={images.length>=MAX_IMAGES} onChange={(e)=>{addFiles(e.target.files);e.target.value=''}}/>
+              </label>
+
+              {images.length>0 && (
+                <div className='rc-previews'>
+                  {images.map((image,index)=>(
+                    <div className='rc-preview' key={image.url}>
+                      <img src={image.url} alt={`Upload ${index+1}`}/>
+                      {index===0 && <span className='cover'>Cover</span>}
+                      <button type='button' aria-label='Remove photo' onClick={()=>removeImage(image)}><FontAwesomeIcon icon={faXmark}/></button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className='rc-card'>
+              <h2>Good to know</h2>
+              <ul className='rc-tips' style={{marginTop:14}}>
+                <li><FontAwesomeIcon icon={faCircleCheck}/><span>After saving, open the court from <b>My Courts</b> to add dates, time slots and prices.</span></li>
+                <li><FontAwesomeIcon icon={faCircleCheck}/><span>Bright, landscape photos get the most bookings.</span></li>
+                <li><FontAwesomeIcon icon={faCircleCheck}/><span>Mention facilities like floodlights, parking and changing rooms.</span></li>
+              </ul>
+              <div className='rc-actions' style={{marginTop:22}}>
+                <Link to='/mycourts' className='rc-ghost'>Cancel</Link>
+                <button type='submit' className='courts-btn' disabled={saving} style={{cursor:'pointer'}}>{saving?'Saving…':'Register court'}</button>
               </div>
-            );
-          })}
+            </div>
+          </div>
+        </form>
       </div>
-    </Form.Group>
-   <Button  variant=" w-25 my-3 " className='mx-auto text-light' type="submit" style={{backgroundColor:'#0D4A42'}}>
-     Save
-   </Button>
-   
- </Form>
-
- </Container>
-</>
-   
+    </div>
   )
 }
 
