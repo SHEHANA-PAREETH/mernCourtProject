@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import AxiosInstance from '../config/axiosinstance'
+import { imageUrl } from '../config/imageUrl'
 import Navcomponent from '../componets/Navcomponent'
 import CourtModal from '../componets/CourtModal'
 import AddSlotModal from '../componets/AddSlotModal'
